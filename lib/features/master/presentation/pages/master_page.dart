@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -15,125 +14,160 @@ class MasterPage extends ConsumerWidget {
       appBar: AppBar(title: const Text('Master Data')),
       body: ListView(
         padding: const EdgeInsets.all(20),
-        children: [
-          // ── Search bar ──────────────────────────
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.divider),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.search_rounded, color: AppColors.textHint),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search master data...',
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      hintStyle: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textHint,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+        children: const [
+          _MenuTile(
+            icon: Icons.approval_rounded,
+            title: 'Approval',
+            subtitle: 'Manage approval workflows',
           ),
-          const SizedBox(height: 24),
-
-          Text('Organization', style: AppTextStyles.titleSmall),
-          const SizedBox(height: 12),
-          _MasterGrid(
-            items: const [
-              _MasterItem(Icons.business_rounded, 'Company'),
-              _MasterItem(Icons.account_tree_rounded, 'Department'),
-              _MasterItem(Icons.badge_rounded, 'Position'),
-              _MasterItem(Icons.location_on_rounded, 'Location'),
-            ],
+          _MenuTile(
+            icon: Icons.business_rounded,
+            title: 'Company',
+            subtitle: 'Manage company data',
           ),
-
-          const SizedBox(height: 24),
-          Text('Employee', style: AppTextStyles.titleSmall),
-          const SizedBox(height: 12),
-          _MasterGrid(
-            items: const [
-              _MasterItem(Icons.people_rounded, 'Employees'),
-              _MasterItem(Icons.school_rounded, 'Education'),
-              _MasterItem(Icons.work_rounded, 'Experience'),
-              _MasterItem(Icons.family_restroom_rounded, 'Family'),
-            ],
+          _MenuTile(
+            icon: Icons.account_balance_wallet_rounded,
+            title: 'Cost Center',
+            subtitle: 'Manage cost centers',
           ),
-
-          const SizedBox(height: 24),
-          Text('Payroll', style: AppTextStyles.titleSmall),
-          const SizedBox(height: 12),
-          _MasterGrid(
-            items: const [
-              _MasterItem(Icons.payments_rounded, 'Salary Grade'),
-              _MasterItem(Icons.price_change_rounded, 'Allowances'),
-              _MasterItem(Icons.money_off_rounded, 'Deductions'),
-              _MasterItem(Icons.account_balance_rounded, 'Banks'),
-            ],
+          _MenuTile(
+            icon: Icons.email_rounded,
+            title: 'Email',
+            subtitle: 'Manage email configurations',
           ),
-          const SizedBox(height: 20),
+          _MenuTile(
+            icon: Icons.people_alt_rounded,
+            title: 'Employee',
+            subtitle: 'Manage employee data',
+          ),
+          _MenuTile(
+            icon: Icons.functions_rounded,
+            title: 'Formula',
+            subtitle: 'Manage calculation formulas',
+          ),
+          _MenuTile(
+            icon: Icons.account_balance_rounded,
+            title: 'GL Account',
+            subtitle: 'Manage general ledger accounts',
+          ),
+          _MenuTile(
+            icon: Icons.group_rounded,
+            title: 'Group',
+            subtitle: 'Manage employee groups',
+          ),
+          _MenuTile(
+            icon: Icons.event_rounded,
+            title: 'Holiday',
+            subtitle: 'Manage holiday calendar',
+          ),
+          _MenuTile(
+            icon: Icons.account_tree_rounded,
+            title: 'Organization Level',
+            subtitle: 'Manage organization levels',
+          ),
+          _MenuTile(
+            icon: Icons.factory_rounded,
+            title: 'Plant',
+            subtitle: 'Manage plant locations',
+          ),
+          _MenuTile(
+            icon: Icons.badge_rounded,
+            title: 'Position',
+            subtitle: 'Manage job positions',
+          ),
+          _MenuTile(
+            icon: Icons.leaderboard_rounded,
+            title: 'Position Level',
+            subtitle: 'Manage position levels',
+          ),
+          _MenuTile(
+            icon: Icons.school_rounded,
+            title: 'Position Major',
+            subtitle: 'Manage position majors',
+          ),
+          _MenuTile(
+            icon: Icons.folder_special_rounded,
+            title: 'Project',
+            subtitle: 'Manage projects',
+          ),
+          _MenuTile(
+            icon: Icons.tune_rounded,
+            title: 'Setting',
+            subtitle: 'Master data settings',
+          ),
+          _MenuTile(
+            icon: Icons.schedule_rounded,
+            title: 'Shift',
+            subtitle: 'Manage work shifts',
+          ),
+          _MenuTile(
+            icon: Icons.location_on_rounded,
+            title: 'Work Location',
+            subtitle: 'Manage work locations',
+          ),
+          SizedBox(height: 20),
         ],
       ),
     );
   }
 }
 
-class _MasterGrid extends StatelessWidget {
-  const _MasterGrid({required this.items});
-  final List<_MasterItem> items;
+// ── Menu Tile ───────────────────────────────────────────
+
+class _MenuTile extends StatelessWidget {
+  const _MenuTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 4,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      children: items
-          .map(
-            (item) => InkWell(
-              onTap: () {},
-              borderRadius: BorderRadius.circular(14),
-              child: Container(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        onTap: () {},
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.divider),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.divider),
+                  color: AppColors.accentBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                child: Icon(icon, size: 22, color: AppColors.accentBlue),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(item.icon, size: 26, color: AppColors.accentBlue),
-                    const SizedBox(height: 6),
-                    Text(
-                      item.label,
-                      style: AppTextStyles.labelSmall.copyWith(fontSize: 9),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    Text(title, style: AppTextStyles.titleSmall),
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: AppTextStyles.bodySmall),
                   ],
                 ),
               ),
-            ),
-          )
-          .toList(),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.textHint,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
-}
-
-class _MasterItem {
-  final IconData icon;
-  final String label;
-  const _MasterItem(this.icon, this.label);
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../features/dashboard/presentation/pages/check_in_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/main/presentation/pages/main_shell_page.dart';
 import '../../features/master/presentation/pages/master_page.dart';
@@ -25,6 +25,7 @@ class RoutePaths {
   static const String master = '/master';
   static const String system = '/system';
   static const String report = '/report';
+  static const String checkIn = '/check-in';
 }
 
 /// A [Listenable] that notifies GoRouter when the auth state
@@ -86,6 +87,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: RoutePaths.splash, builder: (_, _) => const SplashPage()),
       GoRoute(path: RoutePaths.login, builder: (_, _) => const LoginPage()),
+      GoRoute(
+        path: RoutePaths.checkIn,
+        builder: (_, _) => const CheckInPage(),
+      ),
 
       // Main shell with 5 tabs
       StatefulShellRoute.indexedStack(
@@ -119,16 +124,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: RoutePaths.system,
-                builder: (_, _) => const SystemPage(),
+                path: RoutePaths.report,
+                builder: (_, _) => const ReportPage(),
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: RoutePaths.report,
-                builder: (_, _) => const ReportPage(),
+                path: RoutePaths.system,
+                builder: (_, _) => const SystemPage(),
               ),
             ],
           ),

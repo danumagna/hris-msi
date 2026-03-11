@@ -27,54 +27,49 @@ class SystemPage extends ConsumerWidget {
           _ProfileCard(user: user),
           const SizedBox(height: 24),
 
-          Text('Settings', style: AppTextStyles.titleSmall),
+          Text('System Menu', style: AppTextStyles.titleSmall),
           const SizedBox(height: 12),
 
           _SettingsTile(
-            icon: Icons.person_outline_rounded,
-            title: 'My Profile',
-            subtitle: 'Edit personal information',
+            icon: Icons.touch_app_rounded,
+            title: 'Action',
+            subtitle: 'Manage system actions',
             onTap: () {},
           ),
           _SettingsTile(
-            icon: Icons.lock_outline_rounded,
-            title: 'Change Password',
-            subtitle: 'Update your login credentials',
+            icon: Icons.view_quilt_rounded,
+            title: 'Appview',
+            subtitle: 'Manage application views',
             onTap: () {},
           ),
           _SettingsTile(
-            icon: Icons.notifications_outlined,
-            title: 'Notifications',
-            subtitle: 'Manage push notification preferences',
+            icon: Icons.link_rounded,
+            title: 'Map Role Appview',
+            subtitle: 'Map roles to application views',
             onTap: () {},
           ),
           _SettingsTile(
-            icon: Icons.language_rounded,
-            title: 'Language',
-            subtitle: 'English',
+            icon: Icons.group_work_rounded,
+            title: 'Map User Role',
+            subtitle: 'Assign roles to users',
             onTap: () {},
           ),
-
-          const SizedBox(height: 24),
-          Text('Administration', style: AppTextStyles.titleSmall),
-          const SizedBox(height: 12),
-
+          _SettingsTile(
+            icon: Icons.widgets_rounded,
+            title: 'Module',
+            subtitle: 'Manage system modules',
+            onTap: () {},
+          ),
           _SettingsTile(
             icon: Icons.admin_panel_settings_rounded,
-            title: 'User Management',
-            subtitle: 'Manage users and roles',
+            title: 'Role',
+            subtitle: 'Manage roles and permissions',
             onTap: () {},
           ),
           _SettingsTile(
-            icon: Icons.tune_rounded,
-            title: 'App Configuration',
-            subtitle: 'System-wide settings',
-            onTap: () {},
-          ),
-          _SettingsTile(
-            icon: Icons.history_rounded,
-            title: 'Audit Log',
-            subtitle: 'View system activity logs',
+            icon: Icons.people_alt_rounded,
+            title: 'User',
+            subtitle: 'Manage user accounts',
             onTap: () {},
           ),
 
@@ -83,7 +78,7 @@ class SystemPage extends ConsumerWidget {
           // ── Logout Button ──────────────────────
           SizedBox(
             width: double.infinity,
-            height: 52,
+
             child: OutlinedButton.icon(
               onPressed: () async {
                 final confirmed = await showDialog<bool>(

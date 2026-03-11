@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -33,12 +32,12 @@ class MainShellPage extends StatelessWidget {
       label: 'Master',
     ),
     _TabItem(
-      icon: Icons.settings_rounded,
-      label: 'System',
-    ),
-    _TabItem(
       icon: Icons.bar_chart_rounded,
       label: 'Report',
+    ),
+    _TabItem(
+      icon: Icons.settings_rounded,
+      label: 'System',
     ),
   ];
 

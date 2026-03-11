@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../providers/attendance_provider.dart';
 
 /// Dashboard — first tab and primary landing page after login.
 ///
@@ -28,9 +32,15 @@ class DashboardPage extends ConsumerWidget {
             // ── Header ────────────────────────────────
             SliverToBoxAdapter(child: _Header(user: user)),
 
-            // ── Quick Info Cards ──────────────────────
+            // ── Attendance Section ───────────────────
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverToBoxAdapter(child: _AttendanceSection()),
+            ),
+
+            // ── Quick Info Cards ──────────────────────
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               sliver: SliverToBoxAdapter(child: _QuickInfoSection()),
             ),
 
@@ -144,6 +154,174 @@ class _Header extends StatelessWidget {
   }
 }
 
+// ── Attendance Section ──────────────────────────────────
+
+class _AttendanceSection extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_AttendanceSection> createState() =>
+      _AttendanceSectionState();
+}
+
+class _AttendanceSectionState extends ConsumerState<_AttendanceSection> {
+  late Timer _timer;
+  DateTime _now = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => setState(() => _now = DateTime.now()),
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final attendance = ref.watch(attendanceProvider);
+    final isCheckedIn = attendance.isCheckedIn;
+    final isCheckedOut = attendance.isCheckedOut;
+
+    final hour = _now.hour.toString().padLeft(2, '0');
+    final minute = _now.minute.toString().padLeft(2, '0');
+    final second = _now.second.toString().padLeft(2, '0');
+
+    const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+    const months = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+    ];
+    final dateText = '${days[_now.weekday - 1]}, '
+        '${_now.day} ${months[_now.month - 1]} ${_now.year}';
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Date & Real-time clock ───────────
+          Center(
+            child: Text(
+              dateText,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Center(
+            child: Text(
+              '$hour:$minute:$second',
+              style: AppTextStyles.headlineLarge.copyWith(
+                color: AppColors.darkBlue,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.accentBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.access_time_rounded,
+                  size: 20,
+                  color: AppColors.accentBlue,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Attendance', style: AppTextStyles.titleSmall),
+                    if (isCheckedIn && attendance.checkInTime != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          'Checked in at '
+                          '${attendance.checkInTime!.hour.toString().padLeft(2, '0')}:'
+                          '${attendance.checkInTime!.minute.toString().padLeft(2, '0')}',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.success,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: isCheckedIn
+                      ? null
+                      : () => context.push(RoutePaths.checkIn),
+                  icon: const Icon(Icons.login_rounded, size: 18),
+                  label: Text(
+                    isCheckedIn ? 'Checked In' : 'Check In',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.success,
+                    foregroundColor: AppColors.white,
+                    disabledBackgroundColor: AppColors.divider,
+                    disabledForegroundColor: AppColors.textHint,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: (isCheckedIn && !isCheckedOut)
+                      ? () {
+                          // Checkout logic — to be implemented
+                        }
+                      : null,
+                  icon: const Icon(Icons.logout_rounded, size: 18),
+                  label: Text(
+                    isCheckedOut ? 'Checked Out' : 'Check Out',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.error,
+                    foregroundColor: AppColors.white,
+                    disabledBackgroundColor: AppColors.divider,
+                    disabledForegroundColor: AppColors.textHint,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ── Quick Info Cards ────────────────────────────────────
 
 class _QuickInfoSection extends StatelessWidget {
@@ -246,12 +424,12 @@ class _ShortcutGrid extends StatelessWidget {
   const _ShortcutGrid();
 
   static const _shortcuts = [
-    _ShortcutItem(Icons.fingerprint_rounded, 'Attendance'),
-    _ShortcutItem(Icons.beach_access_rounded, 'Leave'),
-    _ShortcutItem(Icons.account_balance_wallet_rounded, 'Payroll'),
-    _ShortcutItem(Icons.assignment_rounded, 'Tasks'),
-    _ShortcutItem(Icons.schedule_rounded, 'Schedule'),
-    _ShortcutItem(Icons.more_horiz_rounded, 'More'),
+    _ShortcutItem(Icons.assignment_rounded, 'Task'),
+    _ShortcutItem(Icons.calendar_month_rounded, 'Calendar'),
+    _ShortcutItem(Icons.beach_access_rounded, 'Cuti'),
+    _ShortcutItem(Icons.fingerprint_rounded, 'Absent'),
+    _ShortcutItem(Icons.receipt_long_rounded, 'Reimburse'),
+    _ShortcutItem(Icons.more_time_rounded, 'Overtime'),
   ];
 
   @override
