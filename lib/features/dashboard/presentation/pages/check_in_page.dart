@@ -79,9 +79,7 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
     if (!serviceEnabled) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Location services are disabled.'),
-          ),
+          const SnackBar(content: Text('Location services are disabled.')),
         );
       }
       setState(() => _isLoadingLocation = false);
@@ -94,9 +92,7 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
       if (permission == LocationPermission.denied) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Location permission denied.'),
-            ),
+            const SnackBar(content: Text('Location permission denied.')),
           );
         }
         setState(() => _isLoadingLocation = false);
@@ -133,7 +129,8 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
     final dLng = _toRadians(b.longitude - a.longitude);
     final sinDLat = sin(dLat / 2);
     final sinDLng = sin(dLng / 2);
-    final h = sinDLat * sinDLat +
+    final h =
+        sinDLat * sinDLat +
         cos(_toRadians(a.latitude)) *
             cos(_toRadians(b.latitude)) *
             sinDLng *
@@ -152,11 +149,7 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
       _currentPosition!.latitude,
       _currentPosition!.longitude,
     );
-    return _distanceInMeters(
-          userLatLng,
-          _selectedLocation!.coordinates,
-        ) <=
-        50;
+    return _distanceInMeters(userLatLng, _selectedLocation!.coordinates) <= 50;
   }
 
   bool get _canSubmit =>
@@ -210,31 +203,20 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
     // Simulate brief processing
     await Future<void>.delayed(const Duration(milliseconds: 500));
 
-    ref.read(attendanceProvider.notifier).checkIn();
+    ref
+        .read(attendanceProvider.notifier)
+        .checkIn(workLocation: _selectedLocation!.name);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Check-in successful!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Check-in successful!')));
       Navigator.pop(context);
     }
   }
 
   List<_WorkLocation> get _allLocations {
-    final locations = List<_WorkLocation>.from(_locations);
-    if (_currentPosition != null) {
-      locations.add(
-        _WorkLocation(
-          name: 'WFH',
-          coordinates: LatLng(
-            _currentPosition!.latitude,
-            _currentPosition!.longitude,
-          ),
-          isWfh: true,
-        ),
-      );
-    }
-    return locations;
+    return List<_WorkLocation>.from(_locations);
   }
 
   @override
@@ -270,17 +252,14 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: _selectedLocation == loc
-                              ? AppColors.accentBlue
-                                  .withValues(alpha: 0.1)
+                              ? AppColors.accentBlue.withValues(alpha: 0.1)
                               : AppColors.white,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: _selectedLocation == loc
                                 ? AppColors.accentBlue
                                 : AppColors.divider,
-                            width: _selectedLocation == loc
-                                ? 1.5
-                                : 1,
+                            width: _selectedLocation == loc ? 1.5 : 1,
                           ),
                         ),
                         child: Row(
@@ -302,10 +281,9 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
                                   color: _selectedLocation == loc
                                       ? AppColors.accentBlue
                                       : AppColors.textPrimary,
-                                  fontWeight:
-                                      _selectedLocation == loc
-                                          ? FontWeight.w600
-                                          : FontWeight.w400,
+                                  fontWeight: _selectedLocation == loc
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
                                 ),
                               ),
                             ),
@@ -323,8 +301,7 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
                 ),
 
                 // ── Radius status ──────────────────
-                if (_selectedLocation != null &&
-                    !_selectedLocation!.isWfh) ...[
+                if (_selectedLocation != null && !_selectedLocation!.isWfh) ...[
                   const SizedBox(height: 8),
                   _RadiusStatus(
                     isWithin: _isWithinRadius,
@@ -351,7 +328,8 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
                     child: FlutterMap(
                       mapController: _mapController,
                       options: MapOptions(
-                        initialCenter: _selectedLocation?.coordinates ??
+                        initialCenter:
+                            _selectedLocation?.coordinates ??
                             (_currentPosition != null
                                 ? LatLng(
                                     _currentPosition!.latitude,
@@ -363,8 +341,7 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
                                   )),
                         initialZoom: 16,
                         interactionOptions: const InteractionOptions(
-                          flags: InteractiveFlag.all &
-                              ~InteractiveFlag.rotate,
+                          flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
                         ),
                       ),
                       children: [
@@ -378,8 +355,7 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
                           markers: [
                             if (_selectedLocation != null)
                               Marker(
-                                point:
-                                    _selectedLocation!.coordinates,
+                                point: _selectedLocation!.coordinates,
                                 width: 40,
                                 height: 40,
                                 child: const Icon(
@@ -414,12 +390,12 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
                           CircleLayer(
                             circles: [
                               CircleMarker(
-                                point:
-                                    _selectedLocation!.coordinates,
+                                point: _selectedLocation!.coordinates,
                                 radius: 50,
                                 useRadiusInMeter: true,
-                                color: AppColors.accentBlue
-                                    .withValues(alpha: 0.15),
+                                color: AppColors.accentBlue.withValues(
+                                  alpha: 0.15,
+                                ),
                                 borderColor: AppColors.accentBlue,
                                 borderStrokeWidth: 1.5,
                               ),
@@ -489,8 +465,9 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.accentBlue
-                                    .withValues(alpha: 0.1),
+                                color: AppColors.accentBlue.withValues(
+                                  alpha: 0.1,
+                                ),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -522,10 +499,8 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.success,
                       foregroundColor: AppColors.white,
-                      disabledBackgroundColor:
-                          AppColors.divider,
-                      disabledForegroundColor:
-                          AppColors.textHint,
+                      disabledBackgroundColor: AppColors.divider,
+                      disabledForegroundColor: AppColors.textHint,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -552,10 +527,7 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
 // ── Radius Status Widget ────────────────────────────────
 
 class _RadiusStatus extends StatelessWidget {
-  const _RadiusStatus({
-    required this.isWithin,
-    this.distance,
-  });
+  const _RadiusStatus({required this.isWithin, this.distance});
 
   final bool isWithin;
   final double? distance;
@@ -567,10 +539,7 @@ class _RadiusStatus extends StatelessWidget {
         : '';
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 10,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: isWithin
             ? AppColors.success.withValues(alpha: 0.1)
@@ -580,9 +549,7 @@ class _RadiusStatus extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            isWithin
-                ? Icons.check_circle_rounded
-                : Icons.warning_rounded,
+            isWithin ? Icons.check_circle_rounded : Icons.warning_rounded,
             size: 18,
             color: isWithin ? AppColors.success : AppColors.warning,
           ),
@@ -593,9 +560,7 @@ class _RadiusStatus extends StatelessWidget {
                   ? 'You are within 50m radius'
                   : 'You are outside 50m radius $distText',
               style: AppTextStyles.bodySmall.copyWith(
-                color: isWithin
-                    ? AppColors.success
-                    : AppColors.warning,
+                color: isWithin ? AppColors.success : AppColors.warning,
                 fontWeight: FontWeight.w500,
               ),
             ),

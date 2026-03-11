@@ -6,12 +6,16 @@ class AttendanceState {
   final bool isCheckedOut;
   final DateTime? checkInTime;
   final DateTime? checkOutTime;
+  final String? workLocation;
+  final String shift;
 
   const AttendanceState({
     this.isCheckedIn = false,
     this.isCheckedOut = false,
     this.checkInTime,
     this.checkOutTime,
+    this.workLocation,
+    this.shift = '09:00 - 18:00',
   });
 
   AttendanceState copyWith({
@@ -19,12 +23,16 @@ class AttendanceState {
     bool? isCheckedOut,
     DateTime? checkInTime,
     DateTime? checkOutTime,
+    String? workLocation,
+    String? shift,
   }) {
     return AttendanceState(
       isCheckedIn: isCheckedIn ?? this.isCheckedIn,
       isCheckedOut: isCheckedOut ?? this.isCheckedOut,
       checkInTime: checkInTime ?? this.checkInTime,
       checkOutTime: checkOutTime ?? this.checkOutTime,
+      workLocation: workLocation ?? this.workLocation,
+      shift: shift ?? this.shift,
     );
   }
 }
@@ -33,10 +41,11 @@ class AttendanceNotifier extends Notifier<AttendanceState> {
   @override
   AttendanceState build() => const AttendanceState();
 
-  void checkIn() {
+  void checkIn({required String workLocation}) {
     state = state.copyWith(
       isCheckedIn: true,
       checkInTime: DateTime.now(),
+      workLocation: workLocation,
     );
   }
 

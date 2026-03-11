@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/dashboard/presentation/pages/check_in_page.dart';
+import '../../features/dashboard/presentation/pages/check_out_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/main/presentation/pages/main_shell_page.dart';
 import '../../features/master/presentation/pages/master_page.dart';
@@ -26,6 +27,7 @@ class RoutePaths {
   static const String system = '/system';
   static const String report = '/report';
   static const String checkIn = '/check-in';
+  static const String checkOut = '/check-out';
 }
 
 /// A [Listenable] that notifies GoRouter when the auth state
@@ -90,6 +92,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.checkIn,
         builder: (_, _) => const CheckInPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.checkOut,
+        builder: (_, _) => const CheckOutPage(),
       ),
 
       // Main shell with 5 tabs

@@ -158,8 +158,7 @@ class _Header extends StatelessWidget {
 
 class _AttendanceSection extends ConsumerStatefulWidget {
   @override
-  ConsumerState<_AttendanceSection> createState() =>
-      _AttendanceSectionState();
+  ConsumerState<_AttendanceSection> createState() => _AttendanceSectionState();
 }
 
 class _AttendanceSectionState extends ConsumerState<_AttendanceSection> {
@@ -191,12 +190,31 @@ class _AttendanceSectionState extends ConsumerState<_AttendanceSection> {
     final minute = _now.minute.toString().padLeft(2, '0');
     final second = _now.second.toString().padLeft(2, '0');
 
-    const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-    const months = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+    const days = [
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+      'Minggu',
     ];
-    final dateText = '${days[_now.weekday - 1]}, '
+    const months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    final dateText =
+        '${days[_now.weekday - 1]}, '
         '${_now.day} ${months[_now.month - 1]} ${_now.year}';
 
     return Container(
@@ -266,6 +284,50 @@ class _AttendanceSectionState extends ConsumerState<_AttendanceSection> {
               ),
             ],
           ),
+          // ── Attendance Summary ────────────
+          if (isCheckedIn) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.accentBlue.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                children: [
+                  _summaryRow(
+                    Icons.schedule_rounded,
+                    'Shift',
+                    attendance.shift,
+                  ),
+                  const SizedBox(height: 8),
+                  _summaryRow(
+                    Icons.location_on_rounded,
+                    'Work Location',
+                    attendance.workLocation ?? '-',
+                  ),
+                  const SizedBox(height: 8),
+                  _summaryRow(
+                    Icons.login_rounded,
+                    'Check In',
+                    attendance.checkInTime != null
+                        ? '${attendance.checkInTime!.hour.toString().padLeft(2, '0')}:'
+                              '${attendance.checkInTime!.minute.toString().padLeft(2, '0')}'
+                        : '-',
+                  ),
+                  if (isCheckedOut && attendance.checkOutTime != null) ...[
+                    const SizedBox(height: 8),
+                    _summaryRow(
+                      Icons.logout_rounded,
+                      'Check Out',
+                      '${attendance.checkOutTime!.hour.toString().padLeft(2, '0')}:'
+                          '${attendance.checkOutTime!.minute.toString().padLeft(2, '0')}',
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
           Row(
             children: [
@@ -294,9 +356,7 @@ class _AttendanceSectionState extends ConsumerState<_AttendanceSection> {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: (isCheckedIn && !isCheckedOut)
-                      ? () {
-                          // Checkout logic — to be implemented
-                        }
+                      ? () => context.push(RoutePaths.checkOut)
                       : null,
                   icon: const Icon(Icons.logout_rounded, size: 18),
                   label: Text(
@@ -318,6 +378,25 @@ class _AttendanceSectionState extends ConsumerState<_AttendanceSection> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _summaryRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: AppColors.accentBlue),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 100,
+          child: Text(
+            label,
+            style: AppTextStyles.labelSmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+        Expanded(child: Text(value, style: AppTextStyles.bodySmall)),
+      ],
     );
   }
 }
@@ -371,7 +450,7 @@ class _QuickInfoSection extends StatelessWidget {
                 border: Border.all(color: AppColors.divider),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     padding: const EdgeInsets.all(7),
