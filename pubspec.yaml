@@ -1,0 +1,73 @@
+name: hris_msi
+description: "HRIS MSI - Human Resource Information System"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.17
+  shimmer: ^3.0.0
+  gap: ^3.0.1
+
+  # State Management & DI
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Navigation
+  go_router: ^14.8.1
+
+  # Network
+  dio: ^5.8.0+1
+
+  # Local Storage
+  shared_preferences: ^2.5.3
+  flutter_secure_storage: ^9.2.4
+
+  # Functional Programming
+  fpdart: ^1.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  riverpod_generator: ^2.6.3
+  build_runner: ^2.4.15
+  custom_lint: ^0.7.5
+  riverpod_lint: ^2.6.3
+  mockito: ^5.4.6
+  mocktail: ^1.0.4
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/logo.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/icons/logo.png"
+    background_color: "#ffffff"
+    theme_color: "#000000"
+  windows:
+    generate: true
+    image_path: "assets/icons/logo.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/icons/logo.png"
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/fonts/
