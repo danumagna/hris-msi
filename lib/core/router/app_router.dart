@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/dashboard/presentation/pages/check_in_page.dart';
@@ -28,6 +29,7 @@ class RoutePaths {
   static const String report = '/report';
   static const String checkIn = '/check-in';
   static const String checkOut = '/check-out';
+  static const String forgotPassword = '/forgot-password';
 }
 
 /// A [Listenable] that notifies GoRouter when the auth state
@@ -63,6 +65,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       final currentPath = state.uri.path;
       final isSplash = currentPath == RoutePaths.splash;
       final isLogin = currentPath == RoutePaths.login;
+      final isForgotPassword =
+          currentPath == RoutePaths.forgotPassword;
 
       // Still determining auth status — stay on splash.
       if (authState is AuthInitial) {
@@ -76,12 +80,16 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // Authenticated → leave splash/login, go to dashboard.
       if (authState is AuthAuthenticated) {
-        if (isSplash || isLogin) return RoutePaths.dashboard;
+        if (isSplash || isLogin || isForgotPassword) {
+          return RoutePaths.dashboard;
+        }
         return null;
       }
 
       // Unauthenticated / error → leave splash, go to login.
-      if (isSplash || !isLogin) return RoutePaths.login;
+      if (isSplash || !(isLogin || isForgotPassword)) {
+        return RoutePaths.login;
+      }
       return null;
     },
 
@@ -89,6 +97,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: RoutePaths.splash, builder: (_, _) => const SplashPage()),
       GoRoute(path: RoutePaths.login, builder: (_, _) => const LoginPage()),
+      GoRoute(
+        path: RoutePaths.forgotPassword,
+        builder: (_, _) => const ForgotPasswordPage(),
+      ),
       GoRoute(
         path: RoutePaths.checkIn,
         builder: (_, _) => const CheckInPage(),
