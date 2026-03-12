@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -360,60 +362,64 @@ class _ReimbursementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.divider),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title + status
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  item.title,
-                  style: AppTextStyles.titleSmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+    return InkWell(
+      onTap: () => _showDetailDialog(context, item),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.divider),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title + status
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    item.title,
+                    style: AppTextStyles.titleSmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-              _StatusBadge(status: item.status),
+                _StatusBadge(status: item.status),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Details
+            _detailRow('Type', item.type.label),
+            const SizedBox(height: 4),
+            _detailRow('Sub Type', item.subType),
+            const SizedBox(height: 4),
+            _detailRow('Start Date', _formatDate(item.transactionStartDate)),
+            const SizedBox(height: 4),
+            _detailRow('End Date', _formatDate(item.transactionEndDate)),
+            const SizedBox(height: 4),
+            _detailRow('Description', item.description),
+            const SizedBox(height: 4),
+            _detailRow('Entry Time', _formatDateTime(item.entryTime)),
+            const SizedBox(height: 4),
+            _detailRow('Amount', _formatCurrency(item.amount)),
+
+            // File attachments
+            if (item.filePaths.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              _detailRow('Files', '${item.filePaths.length} attachment(s)'),
             ],
-          ),
-          const SizedBox(height: 10),
 
-          // Details
-          _detailRow('Type', item.type.label),
-          const SizedBox(height: 4),
-          _detailRow('Sub Type', item.subType),
-          const SizedBox(height: 4),
-          _detailRow('Start Date', _formatDate(item.transactionStartDate)),
-          const SizedBox(height: 4),
-          _detailRow('End Date', _formatDate(item.transactionEndDate)),
-          const SizedBox(height: 4),
-          _detailRow('Description', item.description),
-          const SizedBox(height: 4),
-          _detailRow('Entry Time', _formatDateTime(item.entryTime)),
-          const SizedBox(height: 4),
-          _detailRow('Amount', _formatCurrency(item.amount)),
-
-          // File attachments
-          if (item.filePaths.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            _detailRow('Files', '${item.filePaths.length} attachment(s)'),
+            // Rejection reason
+            if (item.rejectionReason != null &&
+                item.rejectionReason!.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              _detailRow('Rejection', item.rejectionReason!),
+            ],
           ],
-
-          // Rejection reason
-          if (item.rejectionReason != null &&
-              item.rejectionReason!.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            _detailRow('Rejection', item.rejectionReason!),
-          ],
-        ],
+        ),
       ),
     );
   }
@@ -444,6 +450,229 @@ class _ReimbursementCard extends StatelessWidget {
       ],
     );
   }
+}
+
+// ── Detail Dialog ───────────────────────────────
+
+void _showDetailDialog(BuildContext context, Reimbursement item) {
+  showDialog(
+    context: context,
+    builder: (_) => Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Header ────────────────────────
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 20, 12, 16),
+              decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: AppColors.divider)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Reimbursement Detail',
+                      style: AppTextStyles.titleMedium,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close_rounded, size: 22),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ),
+
+            // ── Scrollable body ───────────────
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title + status
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.title,
+                            style: AppTextStyles.titleSmall.copyWith(
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        _StatusBadge(status: item.status),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Detail rows
+                    _dialogDetailRow('Type Reimburse', item.type.label),
+                    _dialogDetailRow('Sub Type', item.subType),
+                    _dialogDetailRow(
+                      'Start Date',
+                      _formatDate(item.transactionStartDate),
+                    ),
+                    _dialogDetailRow(
+                      'End Date',
+                      _formatDate(item.transactionEndDate),
+                    ),
+                    _dialogDetailRow('Description', item.description),
+                    _dialogDetailRow(
+                      'Entry Time',
+                      _formatDateTime(item.entryTime),
+                    ),
+                    _dialogDetailRow(
+                      'Amount',
+                      _formatCurrency(item.amount),
+                      valueColor: AppColors.darkBlue,
+                    ),
+                    if (item.rejectionReason != null &&
+                        item.rejectionReason!.isNotEmpty)
+                      _dialogDetailRow(
+                        'Rejection Reason',
+                        item.rejectionReason!,
+                        valueColor: AppColors.error,
+                      ),
+
+                    // ── Photo attachments ─────────
+                    if (item.filePaths.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        'Attachments (${item.filePaths.length})',
+                        style: AppTextStyles.labelLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 8,
+                            ),
+                        itemCount: item.filePaths.length,
+                        itemBuilder: (ctx, i) {
+                          final path = item.filePaths[i];
+                          return GestureDetector(
+                            onTap: () => _showFullImage(ctx, path),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.file(
+                                File(path),
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => Container(
+                                  color: AppColors.background,
+                                  child: const Icon(
+                                    Icons.broken_image_rounded,
+                                    color: AppColors.textHint,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _dialogDetailRow(String label, String value, {Color? valueColor}) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 110,
+          child: Text(
+            label,
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: AppTextStyles.bodySmall.copyWith(
+              color: valueColor ?? AppColors.textPrimary,
+              fontWeight: valueColor != null
+                  ? FontWeight.w600
+                  : FontWeight.w400,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+void _showFullImage(BuildContext context, String path) {
+  showDialog(
+    context: context,
+    builder: (_) => Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(16),
+      child: Stack(
+        alignment: Alignment.topRight,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: InteractiveViewer(
+              child: Image.file(
+                File(path),
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) => Container(
+                  width: 200,
+                  height: 200,
+                  color: AppColors.background,
+                  child: const Icon(
+                    Icons.broken_image_rounded,
+                    size: 48,
+                    color: AppColors.textHint,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: CircleAvatar(
+              radius: 18,
+              backgroundColor: AppColors.textPrimary.withValues(alpha: 0.6),
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(
+                  Icons.close_rounded,
+                  size: 18,
+                  color: AppColors.white,
+                ),
+                padding: EdgeInsets.zero,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 // ── Status Badge ────────────────────────────────

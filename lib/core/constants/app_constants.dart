@@ -10,6 +10,7 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // ── API ───────────────────────────────────────────────
+  // TODO: Ganti dengan URL API backend kamu
   static const String baseUrl = 'https://api.example.com/v1';
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);

@@ -1,5 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 
+import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -22,15 +23,21 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      final userModel = await _remote.login(
+      final (userModel, token) = await _remote.login(
         username: username,
         password: password,
       );
-      await _local.saveToken('stub_token_${userModel.id}');
+      await _local.saveToken(token);
       await _local.saveUser(userModel);
       return Right(userModel.toEntity());
+    } on NetworkException {
+      return const Left(NetworkFailure());
+    } on UnauthorizedException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, e.statusCode));
     } on Exception catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(ServerFailure(e.toString()));
     }
   }
 
