@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -40,7 +41,7 @@ class TransactionPage extends ConsumerWidget {
             title: 'Reimbursement',
             subtitle: 'Submit expense claims',
             color: AppColors.warning,
-            onTap: () {},
+            onTap: () => context.push(RoutePaths.reimbursement),
           ),
           const SizedBox(height: 12),
           _TransactionCategoryCard(

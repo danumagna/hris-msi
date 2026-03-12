@@ -503,12 +503,16 @@ class _ShortcutGrid extends StatelessWidget {
   const _ShortcutGrid();
 
   static const _shortcuts = [
-    _ShortcutItem(Icons.assignment_rounded, 'Task'),
-    _ShortcutItem(Icons.calendar_month_rounded, 'Calendar'),
-    _ShortcutItem(Icons.beach_access_rounded, 'Cuti'),
-    _ShortcutItem(Icons.fingerprint_rounded, 'Absent'),
-    _ShortcutItem(Icons.receipt_long_rounded, 'Reimburse'),
-    _ShortcutItem(Icons.more_time_rounded, 'Overtime'),
+    _ShortcutItem(Icons.assignment_rounded, 'Task', null),
+    _ShortcutItem(Icons.calendar_month_rounded, 'Calendar', null),
+    _ShortcutItem(Icons.beach_access_rounded, 'Cuti', null),
+    _ShortcutItem(Icons.fingerprint_rounded, 'Absent', null),
+    _ShortcutItem(
+      Icons.receipt_long_rounded,
+      'Reimburse',
+      RoutePaths.reimbursement,
+    ),
+    _ShortcutItem(Icons.more_time_rounded, 'Overtime', null),
   ];
 
   @override
@@ -521,7 +525,9 @@ class _ShortcutGrid extends StatelessWidget {
       children: _shortcuts
           .map(
             (s) => InkWell(
-              onTap: () {},
+              onTap: () {
+                if (s.route != null) context.push(s.route!);
+              },
               borderRadius: BorderRadius.circular(16),
               child: Container(
                 decoration: BoxDecoration(
@@ -561,7 +567,8 @@ class _ShortcutGrid extends StatelessWidget {
 class _ShortcutItem {
   final IconData icon;
   final String label;
-  const _ShortcutItem(this.icon, this.label);
+  final String? route;
+  const _ShortcutItem(this.icon, this.label, this.route);
 }
 
 // ── Recent Activity ─────────────────────────────────────

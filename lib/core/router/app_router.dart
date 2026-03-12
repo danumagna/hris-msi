@@ -10,6 +10,8 @@ import '../../features/dashboard/presentation/pages/check_out_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/main/presentation/pages/main_shell_page.dart';
 import '../../features/master/presentation/pages/master_page.dart';
+import '../../features/reimbursement/presentation/pages/reimbursement_add_page.dart';
+import '../../features/reimbursement/presentation/pages/reimbursement_page.dart';
 import '../../features/report/presentation/pages/report_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../features/system/presentation/pages/system_page.dart';
@@ -30,6 +32,8 @@ class RoutePaths {
   static const String checkIn = '/check-in';
   static const String checkOut = '/check-out';
   static const String forgotPassword = '/forgot-password';
+  static const String reimbursement = '/reimbursement';
+  static const String reimbursementAdd = '/reimbursement/add';
 }
 
 /// A [Listenable] that notifies GoRouter when the auth state
@@ -108,6 +112,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.checkOut,
         builder: (_, _) => const CheckOutPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.reimbursement,
+        builder: (_, _) => const ReimbursementPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.reimbursementAdd,
+        builder: (_, _) => const ReimbursementAddPage(),
       ),
 
       // Main shell with 5 tabs
