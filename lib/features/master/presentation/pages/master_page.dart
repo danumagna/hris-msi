@@ -5,108 +5,233 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 /// Master-data tab — entry point to all master-data modules.
-class MasterPage extends ConsumerWidget {
+class MasterPage extends ConsumerStatefulWidget {
   const MasterPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MasterPage> createState() => _MasterPageState();
+}
+
+class _MasterPageState extends ConsumerState<MasterPage> {
+  static const _menus = [
+    _MasterMenuItem(
+      icon: Icons.approval_rounded,
+      title: 'Approval',
+      subtitle: 'Manage approval workflows',
+    ),
+    _MasterMenuItem(
+      icon: Icons.business_rounded,
+      title: 'Company',
+      subtitle: 'Manage company data',
+    ),
+    _MasterMenuItem(
+      icon: Icons.account_balance_wallet_rounded,
+      title: 'Cost Center',
+      subtitle: 'Manage cost centers',
+    ),
+    _MasterMenuItem(
+      icon: Icons.email_rounded,
+      title: 'Email',
+      subtitle: 'Manage email configurations',
+    ),
+    _MasterMenuItem(
+      icon: Icons.people_alt_rounded,
+      title: 'Employee',
+      subtitle: 'Manage employee data',
+    ),
+    _MasterMenuItem(
+      icon: Icons.functions_rounded,
+      title: 'Formula',
+      subtitle: 'Manage calculation formulas',
+    ),
+    _MasterMenuItem(
+      icon: Icons.account_balance_rounded,
+      title: 'GL Account',
+      subtitle: 'Manage general ledger accounts',
+    ),
+    _MasterMenuItem(
+      icon: Icons.group_rounded,
+      title: 'Group',
+      subtitle: 'Manage employee groups',
+    ),
+    _MasterMenuItem(
+      icon: Icons.event_rounded,
+      title: 'Holiday',
+      subtitle: 'Manage holiday calendar',
+    ),
+    _MasterMenuItem(
+      icon: Icons.account_tree_rounded,
+      title: 'Organization Level',
+      subtitle: 'Manage organization levels',
+    ),
+    _MasterMenuItem(
+      icon: Icons.factory_rounded,
+      title: 'Plant',
+      subtitle: 'Manage plant locations',
+    ),
+    _MasterMenuItem(
+      icon: Icons.badge_rounded,
+      title: 'Position',
+      subtitle: 'Manage job positions',
+    ),
+    _MasterMenuItem(
+      icon: Icons.leaderboard_rounded,
+      title: 'Position Level',
+      subtitle: 'Manage position levels',
+    ),
+    _MasterMenuItem(
+      icon: Icons.school_rounded,
+      title: 'Position Major',
+      subtitle: 'Manage position majors',
+    ),
+    _MasterMenuItem(
+      icon: Icons.folder_special_rounded,
+      title: 'Project',
+      subtitle: 'Manage projects',
+    ),
+    _MasterMenuItem(
+      icon: Icons.tune_rounded,
+      title: 'Setting',
+      subtitle: 'Master data settings',
+    ),
+    _MasterMenuItem(
+      icon: Icons.schedule_rounded,
+      title: 'Shift',
+      subtitle: 'Manage work shifts',
+    ),
+    _MasterMenuItem(
+      icon: Icons.location_on_rounded,
+      title: 'Work Location',
+      subtitle: 'Manage work locations',
+    ),
+  ];
+
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
+
+  List<_MasterMenuItem> get _filteredMenus {
+    final query = _query.trim().toLowerCase();
+    if (query.isEmpty) return _menus;
+
+    return _menus.where((menu) {
+      return menu.title.toLowerCase().contains(query) ||
+          menu.subtitle.toLowerCase().contains(query);
+    }).toList();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredMenus = _filteredMenus;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Master Data')),
       body: ListView(
         padding: const EdgeInsets.all(20),
-        children: const [
-          _MenuTile(
-            icon: Icons.approval_rounded,
-            title: 'Approval',
-            subtitle: 'Manage approval workflows',
+        children: [
+          _SearchMenuField(
+            controller: _searchController,
+            onChanged: (value) => setState(() => _query = value),
+            onClear: () {
+              _searchController.clear();
+              setState(() => _query = '');
+            },
           ),
-          _MenuTile(
-            icon: Icons.business_rounded,
-            title: 'Company',
-            subtitle: 'Manage company data',
+          const SizedBox(height: 12),
+          ...filteredMenus.map(
+            (menu) => _MenuTile(
+              icon: menu.icon,
+              title: menu.title,
+              subtitle: menu.subtitle,
+            ),
           ),
-          _MenuTile(
-            icon: Icons.account_balance_wallet_rounded,
-            title: 'Cost Center',
-            subtitle: 'Manage cost centers',
-          ),
-          _MenuTile(
-            icon: Icons.email_rounded,
-            title: 'Email',
-            subtitle: 'Manage email configurations',
-          ),
-          _MenuTile(
-            icon: Icons.people_alt_rounded,
-            title: 'Employee',
-            subtitle: 'Manage employee data',
-          ),
-          _MenuTile(
-            icon: Icons.functions_rounded,
-            title: 'Formula',
-            subtitle: 'Manage calculation formulas',
-          ),
-          _MenuTile(
-            icon: Icons.account_balance_rounded,
-            title: 'GL Account',
-            subtitle: 'Manage general ledger accounts',
-          ),
-          _MenuTile(
-            icon: Icons.group_rounded,
-            title: 'Group',
-            subtitle: 'Manage employee groups',
-          ),
-          _MenuTile(
-            icon: Icons.event_rounded,
-            title: 'Holiday',
-            subtitle: 'Manage holiday calendar',
-          ),
-          _MenuTile(
-            icon: Icons.account_tree_rounded,
-            title: 'Organization Level',
-            subtitle: 'Manage organization levels',
-          ),
-          _MenuTile(
-            icon: Icons.factory_rounded,
-            title: 'Plant',
-            subtitle: 'Manage plant locations',
-          ),
-          _MenuTile(
-            icon: Icons.badge_rounded,
-            title: 'Position',
-            subtitle: 'Manage job positions',
-          ),
-          _MenuTile(
-            icon: Icons.leaderboard_rounded,
-            title: 'Position Level',
-            subtitle: 'Manage position levels',
-          ),
-          _MenuTile(
-            icon: Icons.school_rounded,
-            title: 'Position Major',
-            subtitle: 'Manage position majors',
-          ),
-          _MenuTile(
-            icon: Icons.folder_special_rounded,
-            title: 'Project',
-            subtitle: 'Manage projects',
-          ),
-          _MenuTile(
-            icon: Icons.tune_rounded,
-            title: 'Setting',
-            subtitle: 'Master data settings',
-          ),
-          _MenuTile(
-            icon: Icons.schedule_rounded,
-            title: 'Shift',
-            subtitle: 'Manage work shifts',
-          ),
-          _MenuTile(
-            icon: Icons.location_on_rounded,
-            title: 'Work Location',
-            subtitle: 'Manage work locations',
-          ),
-          SizedBox(height: 20),
+          if (filteredMenus.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(
+                  'Menu tidak ditemukan',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          const SizedBox(height: 20),
         ],
+      ),
+    );
+  }
+}
+
+class _MasterMenuItem {
+  const _MasterMenuItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+}
+
+class _SearchMenuField extends StatelessWidget {
+  const _SearchMenuField({
+    required this.controller,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      textInputAction: TextInputAction.search,
+      decoration: InputDecoration(
+        hintText: 'Search menu master...',
+        hintStyle: AppTextStyles.bodySmall.copyWith(color: AppColors.textHint),
+        prefixIcon: const Icon(
+          Icons.search_rounded,
+          color: AppColors.textSecondary,
+        ),
+        suffixIcon: controller.text.isEmpty
+            ? null
+            : IconButton(
+                onPressed: onClear,
+                icon: const Icon(
+                  Icons.close_rounded,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+        filled: true,
+        fillColor: AppColors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: AppColors.divider),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: AppColors.divider),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.accentBlue),
+        ),
       ),
     );
   }
