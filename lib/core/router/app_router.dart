@@ -8,6 +8,8 @@ import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/dashboard/presentation/pages/check_in_page.dart';
 import '../../features/dashboard/presentation/pages/check_out_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
+import '../../features/leave/presentation/pages/leave_add_page.dart';
+import '../../features/leave/presentation/pages/leave_page.dart';
 import '../../features/main/presentation/pages/main_shell_page.dart';
 import '../../features/master/presentation/pages/master_page.dart';
 import '../../features/reimbursement/presentation/pages/reimbursement_add_page.dart';
@@ -34,6 +36,8 @@ class RoutePaths {
   static const String forgotPassword = '/forgot-password';
   static const String reimbursement = '/reimbursement';
   static const String reimbursementAdd = '/reimbursement/add';
+  static const String leave = '/leave';
+  static const String leaveAdd = '/leave/add';
 }
 
 /// A [Listenable] that notifies GoRouter when the auth state
@@ -69,8 +73,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final currentPath = state.uri.path;
       final isSplash = currentPath == RoutePaths.splash;
       final isLogin = currentPath == RoutePaths.login;
-      final isForgotPassword =
-          currentPath == RoutePaths.forgotPassword;
+      final isForgotPassword = currentPath == RoutePaths.forgotPassword;
 
       // Still determining auth status — stay on splash.
       if (authState is AuthInitial) {
@@ -105,10 +108,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.forgotPassword,
         builder: (_, _) => const ForgotPasswordPage(),
       ),
-      GoRoute(
-        path: RoutePaths.checkIn,
-        builder: (_, _) => const CheckInPage(),
-      ),
+      GoRoute(path: RoutePaths.checkIn, builder: (_, _) => const CheckInPage()),
       GoRoute(
         path: RoutePaths.checkOut,
         builder: (_, _) => const CheckOutPage(),
@@ -120,6 +120,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.reimbursementAdd,
         builder: (_, _) => const ReimbursementAddPage(),
+      ),
+      GoRoute(path: RoutePaths.leave, builder: (_, _) => const LeavePage()),
+      GoRoute(
+        path: RoutePaths.leaveAdd,
+        builder: (_, _) => const LeaveAddPage(),
       ),
 
       // Main shell with 5 tabs

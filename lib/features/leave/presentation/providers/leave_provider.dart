@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../domain/entities/reimbursement.dart';
+import '../../domain/entities/leave_request.dart';
 
-/// Manages the list of submitted reimbursements.
-class ReimbursementNotifier extends Notifier<List<Reimbursement>> {
+/// Manages the list of submitted leave requests.
+class LeaveNotifier extends Notifier<List<LeaveRequest>> {
   @override
-  List<Reimbursement> build() => [];
+  List<LeaveRequest> build() => [];
 
-  void add(Reimbursement item) {
+  void add(LeaveRequest item) {
     state = [...state, item];
   }
 
@@ -16,33 +16,32 @@ class ReimbursementNotifier extends Notifier<List<Reimbursement>> {
   }
 }
 
-final reimbursementProvider =
-    NotifierProvider<ReimbursementNotifier, List<Reimbursement>>(
-      ReimbursementNotifier.new,
-    );
+final leaveProvider = NotifierProvider<LeaveNotifier, List<LeaveRequest>>(
+  LeaveNotifier.new,
+);
 
-/// Filter state for the reimbursement list page.
-class ReimbursementFilter {
+/// Filter state for the leave list page.
+class LeaveFilter {
   final DateTime periodStart;
   final DateTime periodEnd;
-  final ReimburseType? type;
+  final LeaveType? type;
   final String searchQuery;
 
-  const ReimbursementFilter({
+  const LeaveFilter({
     required this.periodStart,
     required this.periodEnd,
     this.type,
     this.searchQuery = '',
   });
 
-  ReimbursementFilter copyWith({
+  LeaveFilter copyWith({
     DateTime? periodStart,
     DateTime? periodEnd,
-    ReimburseType? type,
+    LeaveType? type,
     bool clearType = false,
     String? searchQuery,
   }) {
-    return ReimbursementFilter(
+    return LeaveFilter(
       periodStart: periodStart ?? this.periodStart,
       periodEnd: periodEnd ?? this.periodEnd,
       type: clearType ? null : (type ?? this.type),
@@ -51,13 +50,13 @@ class ReimbursementFilter {
   }
 }
 
-class ReimbursementFilterNotifier extends Notifier<ReimbursementFilter> {
+class LeaveFilterNotifier extends Notifier<LeaveFilter> {
   @override
-  ReimbursementFilter build() {
+  LeaveFilter build() {
     final now = DateTime.now();
     final monthStart = DateTime(now.year, now.month, 1);
     final monthEnd = DateTime(now.year, now.month + 1, 0);
-    return ReimbursementFilter(periodStart: monthStart, periodEnd: monthEnd);
+    return LeaveFilter(periodStart: monthStart, periodEnd: monthEnd);
   }
 
   void setPeriod(DateTime start, DateTime end) {
@@ -75,7 +74,7 @@ class ReimbursementFilterNotifier extends Notifier<ReimbursementFilter> {
     );
   }
 
-  void setType(ReimburseType? type) {
+  void setType(LeaveType? type) {
     if (type == null) {
       state = state.copyWith(clearType: true);
     } else {
@@ -88,26 +87,24 @@ class ReimbursementFilterNotifier extends Notifier<ReimbursementFilter> {
   }
 }
 
-final reimbursementFilterProvider =
-    NotifierProvider<ReimbursementFilterNotifier, ReimbursementFilter>(
-      ReimbursementFilterNotifier.new,
-    );
+final leaveFilterProvider = NotifierProvider<LeaveFilterNotifier, LeaveFilter>(
+  LeaveFilterNotifier.new,
+);
 
-/// Provides the filtered reimbursement list.
-final filteredReimbursementsProvider = Provider<List<Reimbursement>>((ref) {
-  final all = ref.watch(reimbursementProvider);
-  final filter = ref.watch(reimbursementFilterProvider);
+/// Provides the filtered leave request list.
+final filteredLeaveRequestsProvider = Provider<List<LeaveRequest>>((ref) {
+  final all = ref.watch(leaveProvider);
+  final filter = ref.watch(leaveFilterProvider);
 
-  final filtered = all.where((r) {
-    // Period filter
-    final afterStart = !r.transactionStartDate.isBefore(
+  final filtered = all.where((item) {
+    final afterStart = !item.startDate.isBefore(
       DateTime(
         filter.periodStart.year,
         filter.periodStart.month,
         filter.periodStart.day,
       ),
     );
-    final beforeEnd = !r.transactionEndDate.isAfter(
+    final beforeEnd = !item.endDate.isAfter(
       DateTime(
         filter.periodEnd.year,
         filter.periodEnd.month,
@@ -119,14 +116,13 @@ final filteredReimbursementsProvider = Provider<List<Reimbursement>>((ref) {
     );
     if (!afterStart || !beforeEnd) return false;
 
-    // Type filter
-    if (filter.type != null && r.type != filter.type) return false;
+    if (filter.type != null && item.type != filter.type) return false;
 
-    // Search filter
     if (filter.searchQuery.isNotEmpty) {
       final q = filter.searchQuery.toLowerCase();
-      if (!r.title.toLowerCase().contains(q) &&
-          !r.description.toLowerCase().contains(q)) {
+      if (!item.leaveNo.toLowerCase().contains(q) &&
+          !item.notes.toLowerCase().contains(q) &&
+          !item.substituteName.toLowerCase().contains(q)) {
         return false;
       }
     }
@@ -138,8 +134,8 @@ final filteredReimbursementsProvider = Provider<List<Reimbursement>>((ref) {
   return filtered;
 });
 
-/// Provides the total cost of the filtered reimbursements.
-final totalCostProvider = Provider<double>((ref) {
-  final items = ref.watch(filteredReimbursementsProvider);
-  return items.fold<double>(0, (sum, r) => sum + r.amount);
+/// Provides total leave days for current filtered list.
+final totalLeaveDaysProvider = Provider<double>((ref) {
+  final items = ref.watch(filteredLeaveRequestsProvider);
+  return items.fold<double>(0, (sum, item) => sum + item.leaveDays);
 });

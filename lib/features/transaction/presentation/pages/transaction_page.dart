@@ -25,7 +25,7 @@ class TransactionPage extends ConsumerWidget {
             title: 'Leave Request',
             subtitle: 'Apply for annual, sick, or personal leave',
             color: AppColors.info,
-            onTap: () {},
+            onTap: () => context.push(RoutePaths.leave),
           ),
           const SizedBox(height: 12),
           _TransactionCategoryCard(
