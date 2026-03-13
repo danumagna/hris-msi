@@ -12,6 +12,8 @@ import '../../features/leave/presentation/pages/leave_add_page.dart';
 import '../../features/leave/presentation/pages/leave_page.dart';
 import '../../features/main/presentation/pages/main_shell_page.dart';
 import '../../features/master/presentation/pages/master_page.dart';
+import '../../features/overtime/presentation/pages/overtime_add_page.dart';
+import '../../features/overtime/presentation/pages/overtime_page.dart';
 import '../../features/reimbursement/presentation/pages/reimbursement_add_page.dart';
 import '../../features/reimbursement/presentation/pages/reimbursement_page.dart';
 import '../../features/report/presentation/pages/report_page.dart';
@@ -38,6 +40,8 @@ class RoutePaths {
   static const String reimbursementAdd = '/reimbursement/add';
   static const String leave = '/leave';
   static const String leaveAdd = '/leave/add';
+  static const String overtime = '/overtime';
+  static const String overtimeAdd = '/overtime/add';
 }
 
 /// A [Listenable] that notifies GoRouter when the auth state
@@ -125,6 +129,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.leaveAdd,
         builder: (_, _) => const LeaveAddPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.overtime,
+        builder: (_, _) => const OvertimePage(),
+      ),
+      GoRoute(
+        path: RoutePaths.overtimeAdd,
+        builder: (_, _) => const OvertimeAddPage(),
       ),
 
       // Main shell with 5 tabs

@@ -512,7 +512,7 @@ class _ShortcutGrid extends StatelessWidget {
       'Reimburse',
       RoutePaths.reimbursement,
     ),
-    _ShortcutItem(Icons.more_time_rounded, 'Overtime', null),
+    _ShortcutItem(Icons.more_time_rounded, 'Overtime', RoutePaths.overtime),
   ];
 
   @override

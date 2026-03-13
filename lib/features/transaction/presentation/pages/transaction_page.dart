@@ -49,7 +49,7 @@ class TransactionPage extends ConsumerWidget {
             title: 'Overtime',
             subtitle: 'Request and track overtime hours',
             color: AppColors.accentBlue,
-            onTap: () {},
+            onTap: () => context.push(RoutePaths.overtime),
           ),
           const SizedBox(height: 12),
           _TransactionCategoryCard(
