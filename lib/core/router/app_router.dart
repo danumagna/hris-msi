@@ -14,10 +14,14 @@ import '../../features/leave/presentation/pages/leave_add_page.dart';
 import '../../features/leave/presentation/pages/leave_page.dart';
 import '../../features/main/presentation/pages/main_shell_page.dart';
 import '../../features/master/presentation/models/master_company_data.dart';
+import '../../features/master/presentation/models/master_plant_data.dart';
 import '../../features/master/presentation/pages/master_company_detail_page.dart';
 import '../../features/master/presentation/pages/master_company_form_page.dart';
 import '../../features/master/presentation/pages/master_company_page.dart';
 import '../../features/master/presentation/pages/master_page.dart';
+import '../../features/master/presentation/pages/master_plant_detail_page.dart';
+import '../../features/master/presentation/pages/master_plant_form_page.dart';
+import '../../features/master/presentation/pages/master_plant_page.dart';
 import '../../features/overtime/presentation/pages/overtime_add_page.dart';
 import '../../features/overtime/presentation/pages/overtime_page.dart';
 import '../../features/reimbursement/presentation/pages/reimbursement_add_page.dart';
@@ -53,6 +57,9 @@ class RoutePaths {
   static const String masterCompany = '/master/company';
   static const String masterCompanyAdd = '/master/company/add';
   static const String masterCompanyDetail = '/master/company/detail';
+  static const String masterPlant = '/master/plant';
+  static const String masterPlantAdd = '/master/plant/add';
+  static const String masterPlantDetail = '/master/plant/detail';
 }
 
 /// A [Listenable] that notifies GoRouter when the auth state
@@ -176,6 +183,30 @@ final routerProvider = Provider<GoRouter>((ref) {
           }
 
           return MasterCompanyDetailPage(company: extra);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterPlant,
+        builder: (_, _) => const MasterPlantPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterPlantAdd,
+        builder: (_, state) {
+          final extra = state.extra;
+          return MasterPlantFormPage(
+            initialData: extra is MasterPlantData ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterPlantDetail,
+        builder: (_, state) {
+          final extra = state.extra;
+          if (extra is! MasterPlantData) {
+            return const MasterPlantPage();
+          }
+
+          return MasterPlantDetailPage(plant: extra);
         },
       ),
 

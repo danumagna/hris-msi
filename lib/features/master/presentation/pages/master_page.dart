@@ -71,6 +71,7 @@ class _MasterPageState extends ConsumerState<MasterPage> {
       icon: Icons.factory_rounded,
       title: 'Plant',
       subtitle: 'Manage plant locations',
+      route: RoutePaths.masterPlant,
     ),
     _MasterMenuItem(
       icon: Icons.badge_rounded,
