@@ -35,7 +35,7 @@ class AbsentRequest {
 }
 
 enum AbsentType {
-  sick('Sakit'),
+  sick('Sick'),
   permit('Izin');
 
   final String label;
