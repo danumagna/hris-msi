@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -23,6 +25,7 @@ class _MasterPageState extends ConsumerState<MasterPage> {
       icon: Icons.business_rounded,
       title: 'Company',
       subtitle: 'Manage company data',
+      route: RoutePaths.masterCompany,
     ),
     _MasterMenuItem(
       icon: Icons.account_balance_wallet_rounded,
@@ -148,6 +151,10 @@ class _MasterPageState extends ConsumerState<MasterPage> {
               icon: menu.icon,
               title: menu.title,
               subtitle: menu.subtitle,
+              onTap: () {
+                if (menu.route == null) return;
+                context.push(menu.route!);
+              },
             ),
           ),
           if (filteredMenus.isEmpty)
@@ -174,11 +181,13 @@ class _MasterMenuItem {
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.route,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
+  final String? route;
 }
 
 class _SearchMenuField extends StatelessWidget {
@@ -244,18 +253,20 @@ class _MenuTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    required this.onTap,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: InkWell(
-        onTap: () {},
+        onTap: onTap,
         borderRadius: BorderRadius.circular(14),
         child: Container(
           padding: const EdgeInsets.all(16),

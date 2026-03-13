@@ -13,6 +13,10 @@ import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/leave/presentation/pages/leave_add_page.dart';
 import '../../features/leave/presentation/pages/leave_page.dart';
 import '../../features/main/presentation/pages/main_shell_page.dart';
+import '../../features/master/presentation/models/master_company_data.dart';
+import '../../features/master/presentation/pages/master_company_detail_page.dart';
+import '../../features/master/presentation/pages/master_company_form_page.dart';
+import '../../features/master/presentation/pages/master_company_page.dart';
 import '../../features/master/presentation/pages/master_page.dart';
 import '../../features/overtime/presentation/pages/overtime_add_page.dart';
 import '../../features/overtime/presentation/pages/overtime_page.dart';
@@ -46,6 +50,9 @@ class RoutePaths {
   static const String leaveAdd = '/leave/add';
   static const String overtime = '/overtime';
   static const String overtimeAdd = '/overtime/add';
+  static const String masterCompany = '/master/company';
+  static const String masterCompanyAdd = '/master/company/add';
+  static const String masterCompanyDetail = '/master/company/detail';
 }
 
 /// A [Listenable] that notifies GoRouter when the auth state
@@ -146,6 +153,30 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.overtimeAdd,
         builder: (_, _) => const OvertimeAddPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterCompany,
+        builder: (_, _) => const MasterCompanyPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterCompanyAdd,
+        builder: (_, state) {
+          final extra = state.extra;
+          return MasterCompanyFormPage(
+            initialData: extra is MasterCompanyData ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterCompanyDetail,
+        builder: (_, state) {
+          final extra = state.extra;
+          if (extra is! MasterCompanyData) {
+            return const MasterCompanyPage();
+          }
+
+          return MasterCompanyDetailPage(company: extra);
+        },
       ),
 
       // Main shell with 5 tabs
