@@ -1,11 +1,29 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/overtime_request.dart';
 import '../providers/overtime_provider.dart';
+
+enum _EvidenceSource { photo, gallery, document }
+
+class _EvidenceFileData {
+  const _EvidenceFileData({
+    required this.name,
+    required this.path,
+    required this.isImage,
+  });
+
+  final String name;
+  final String path;
+  final bool isImage;
+}
 
 /// Form page for creating a new overtime request.
 class OvertimeAddPage extends ConsumerStatefulWidget {
@@ -17,12 +35,14 @@ class OvertimeAddPage extends ConsumerStatefulWidget {
 
 class _OvertimeAddPageState extends ConsumerState<OvertimeAddPage> {
   final _formKey = GlobalKey<FormState>();
+  final ImagePicker _imagePicker = ImagePicker();
 
   OvertimeType? _selectedType = OvertimeType.workday;
   DateTime? _overtimeDate;
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
-  final List<String> _evidenceFiles = [];
+  final List<_EvidenceFileData> _evidenceFiles = [];
+  bool _isUploadingEvidence = false;
 
   @override
   Widget build(BuildContext context) {
@@ -352,32 +372,100 @@ class _OvertimeAddPageState extends ConsumerState<OvertimeAddPage> {
   }
 
   Widget _buildUploadSection() {
+    final imageFiles = _evidenceFiles
+        .where((file) => file.isImage && file.path.isNotEmpty)
+        .toList();
+    final documentFiles = _evidenceFiles
+        .where((file) => !file.isImage)
+        .toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         OutlinedButton.icon(
-          onPressed: _simulateUpload,
+          onPressed: _isUploadingEvidence ? null : _pickEvidence,
           icon: const Icon(Icons.upload_file_rounded, size: 18),
-          label: const Text('Upload Evidence'),
+          label: Text(
+            _isUploadingEvidence ? 'Uploading...' : 'Upload Evidence',
+          ),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(double.infinity, 46),
           ),
         ),
-        if (_evidenceFiles.isNotEmpty) ...[
+        if (imageFiles.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 90,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: imageFiles.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
+              itemBuilder: (_, i) {
+                final file = imageFiles[i];
+                return Stack(
+                  children: [
+                    GestureDetector(
+                      onTap: () => _showFullImage(file.path),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.file(
+                          File(file.path),
+                          width: 90,
+                          height: 90,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Container(
+                            width: 90,
+                            height: 90,
+                            color: AppColors.background,
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.broken_image_rounded,
+                              color: AppColors.textHint,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 2,
+                      right: 2,
+                      child: GestureDetector(
+                        onTap: () => _removeEvidence(file),
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
+                            color: AppColors.error,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            size: 14,
+                            color: AppColors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+        if (documentFiles.isNotEmpty) ...[
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _evidenceFiles
+            children: documentFiles
                 .map(
                   (file) => Chip(
                     label: Text(
-                      file,
+                      file.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     onDeleted: () {
-                      setState(() => _evidenceFiles.remove(file));
+                      _removeEvidence(file);
                     },
                     deleteIcon: const Icon(Icons.close_rounded, size: 16),
                   ),
@@ -448,13 +536,13 @@ class _OvertimeAddPageState extends ConsumerState<OvertimeAddPage> {
     setState(() => _selectedType = selected);
   }
 
-  Future<void> _simulateUpload() async {
-    final selected = await showModalBottomSheet<String>(
+  Future<void> _pickEvidence() async {
+    final selected = await showModalBottomSheet<_EvidenceSource>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => SafeArea(
+      builder: (sheetContext) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -473,17 +561,18 @@ class _OvertimeAddPageState extends ConsumerState<OvertimeAddPage> {
             ListTile(
               leading: const Icon(Icons.camera_alt_rounded),
               title: const Text('Take Photo'),
-              onTap: () => Navigator.pop(context, 'photo'),
+              onTap: () => Navigator.pop(sheetContext, _EvidenceSource.photo),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_rounded),
               title: const Text('Pick from Gallery'),
-              onTap: () => Navigator.pop(context, 'gallery'),
+              onTap: () => Navigator.pop(sheetContext, _EvidenceSource.gallery),
             ),
             ListTile(
               leading: const Icon(Icons.description_rounded),
               title: const Text('Upload Document'),
-              onTap: () => Navigator.pop(context, 'doc'),
+              onTap: () =>
+                  Navigator.pop(sheetContext, _EvidenceSource.document),
             ),
             const SizedBox(height: 10),
           ],
@@ -493,14 +582,135 @@ class _OvertimeAddPageState extends ConsumerState<OvertimeAddPage> {
 
     if (!mounted || selected == null) return;
 
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final fileName = switch (selected) {
-      'photo' => 'Photo_$now.jpg',
-      'gallery' => 'Gallery_$now.jpg',
-      _ => 'Document_$now.pdf',
-    };
+    setState(() => _isUploadingEvidence = true);
 
-    setState(() => _evidenceFiles.add(fileName));
+    try {
+      final pickedFiles = await _pickEvidenceFiles(selected);
+      if (!mounted || pickedFiles.isEmpty) return;
+
+      setState(() {
+        _evidenceFiles.addAll(pickedFiles);
+      });
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Upload gagal. Periksa permission dan coba lagi.'),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isUploadingEvidence = false);
+      }
+    }
+  }
+
+  Future<List<_EvidenceFileData>> _pickEvidenceFiles(
+    _EvidenceSource source,
+  ) async {
+    switch (source) {
+      case _EvidenceSource.photo:
+        final file = await _imagePicker.pickImage(
+          source: ImageSource.camera,
+          imageQuality: 85,
+        );
+        if (file == null) return [];
+        return [
+          _EvidenceFileData(name: file.name, path: file.path, isImage: true),
+        ];
+      case _EvidenceSource.gallery:
+        final files = await _imagePicker.pickMultiImage(imageQuality: 85);
+        if (files.isEmpty) return [];
+        return files
+            .map(
+              (file) => _EvidenceFileData(
+                name: file.name,
+                path: file.path,
+                isImage: true,
+              ),
+            )
+            .toList();
+      case _EvidenceSource.document:
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: const [
+            'pdf',
+            'doc',
+            'docx',
+            'xls',
+            'xlsx',
+            'ppt',
+            'pptx',
+            'txt',
+          ],
+          allowMultiple: true,
+        );
+        if (result == null || result.files.isEmpty) return [];
+
+        return result.files
+            .map(
+              (file) => _EvidenceFileData(
+                name: file.name,
+                path: file.path ?? '',
+                isImage: false,
+              ),
+            )
+            .toList();
+    }
+  }
+
+  void _removeEvidence(_EvidenceFileData file) {
+    setState(() => _evidenceFiles.remove(file));
+  }
+
+  void _showFullImage(String path) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(16),
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: InteractiveViewer(
+                child: Image.file(
+                  File(path),
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) => Container(
+                    width: 200,
+                    height: 200,
+                    color: AppColors.background,
+                    child: const Icon(
+                      Icons.broken_image_rounded,
+                      size: 48,
+                      color: AppColors.textHint,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: AppColors.textPrimary.withValues(alpha: 0.6),
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    size: 18,
+                    color: AppColors.white,
+                  ),
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _submit() {
@@ -561,7 +771,9 @@ class _OvertimeAddPageState extends ConsumerState<OvertimeAddPage> {
       startAt: startAt,
       endAt: endAt,
       durationHours: endAt.difference(startAt).inMinutes / 60.0,
-      evidenceFiles: [..._evidenceFiles],
+      evidenceFiles: _evidenceFiles
+          .map((file) => file.path.isNotEmpty ? file.path : file.name)
+          .toList(),
       entryTime: DateTime.now(),
       status: 'Waiting for approval',
     );

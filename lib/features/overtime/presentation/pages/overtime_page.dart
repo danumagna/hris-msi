@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -431,6 +433,9 @@ class _OvertimeCard extends StatelessWidget {
 }
 
 void _showDetailDialog(BuildContext context, OvertimeRequest item) {
+  final imagePaths = item.evidenceFiles.where(_isImagePath).toList();
+  final otherFiles = item.evidenceFiles.where((p) => !_isImagePath(p)).toList();
+
   showDialog(
     context: context,
     builder: (_) => Dialog(
@@ -498,10 +503,13 @@ void _showDetailDialog(BuildContext context, OvertimeRequest item) {
                     ),
                     _dialogDetailRow(
                       'Evidence',
-                      item.evidenceFiles.isEmpty
-                          ? '-'
-                          : item.evidenceFiles.join(', '),
+                      '${item.evidenceFiles.length} file(s)',
                     ),
+                    if (otherFiles.isNotEmpty)
+                      _dialogDetailRow(
+                        'Document',
+                        otherFiles.map(_displayFileName).join(', '),
+                      ),
                     _dialogDetailRow(
                       'Entry Time',
                       _formatDateTime(item.entryTime),
@@ -513,12 +521,124 @@ void _showDetailDialog(BuildContext context, OvertimeRequest item) {
                         item.rejectionReason!,
                         valueColor: AppColors.error,
                       ),
+
+                    if (imagePaths.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        'Attachments (${imagePaths.length})',
+                        style: AppTextStyles.labelLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 8,
+                            ),
+                        itemCount: imagePaths.length,
+                        itemBuilder: (ctx, i) {
+                          final path = imagePaths[i];
+                          return GestureDetector(
+                            onTap: () => _showFullImage(ctx, path),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.file(
+                                File(path),
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => Container(
+                                  color: AppColors.background,
+                                  child: const Icon(
+                                    Icons.broken_image_rounded,
+                                    color: AppColors.textHint,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ],
                 ),
               ),
             ),
           ],
         ),
+      ),
+    ),
+  );
+}
+
+bool _isImagePath(String value) {
+  final lower = value.toLowerCase();
+  final hasImageExtension =
+      lower.endsWith('.jpg') ||
+      lower.endsWith('.jpeg') ||
+      lower.endsWith('.png') ||
+      lower.endsWith('.webp') ||
+      lower.endsWith('.heic');
+  final looksLikePath =
+      value.contains('/') || value.contains('\\') || value.startsWith('file:');
+
+  return hasImageExtension && looksLikePath;
+}
+
+String _displayFileName(String value) {
+  if (value.isEmpty) return value;
+
+  final normalized = value.replaceAll('\\', '/');
+  final segments = normalized.split('/');
+  return segments.isEmpty ? value : segments.last;
+}
+
+void _showFullImage(BuildContext context, String path) {
+  showDialog(
+    context: context,
+    builder: (_) => Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(16),
+      child: Stack(
+        alignment: Alignment.topRight,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: InteractiveViewer(
+              child: Image.file(
+                File(path),
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) => Container(
+                  width: 200,
+                  height: 200,
+                  color: AppColors.background,
+                  child: const Icon(
+                    Icons.broken_image_rounded,
+                    size: 48,
+                    color: AppColors.textHint,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: CircleAvatar(
+              radius: 18,
+              backgroundColor: AppColors.textPrimary.withValues(alpha: 0.6),
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(
+                  Icons.close_rounded,
+                  size: 18,
+                  color: AppColors.white,
+                ),
+                padding: EdgeInsets.zero,
+              ),
+            ),
+          ),
+        ],
       ),
     ),
   );
