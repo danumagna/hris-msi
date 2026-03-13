@@ -506,7 +506,7 @@ class _ShortcutGrid extends StatelessWidget {
     _ShortcutItem(Icons.assignment_rounded, 'Task', null),
     _ShortcutItem(Icons.calendar_month_rounded, 'Calendar', null),
     _ShortcutItem(Icons.beach_access_rounded, 'Leave', RoutePaths.leave),
-    _ShortcutItem(Icons.fingerprint_rounded, 'Absent', null),
+    _ShortcutItem(Icons.fingerprint_rounded, 'Absent', RoutePaths.absent),
     _ShortcutItem(
       Icons.receipt_long_rounded,
       'Reimburse',

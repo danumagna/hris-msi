@@ -30,10 +30,10 @@ class TransactionPage extends ConsumerWidget {
           const SizedBox(height: 12),
           _TransactionCategoryCard(
             icon: Icons.fingerprint_rounded,
-            title: 'Attendance',
-            subtitle: 'Clock in/out and view attendance log',
+            title: 'Absent',
+            subtitle: 'Submit sick/permit absent requests',
             color: AppColors.success,
-            onTap: () {},
+            onTap: () => context.push(RoutePaths.absent),
           ),
           const SizedBox(height: 12),
           _TransactionCategoryCard(

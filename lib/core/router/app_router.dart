@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/absent/presentation/pages/absent_add_page.dart';
+import '../../features/absent/presentation/pages/absent_page.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
@@ -38,6 +40,8 @@ class RoutePaths {
   static const String forgotPassword = '/forgot-password';
   static const String reimbursement = '/reimbursement';
   static const String reimbursementAdd = '/reimbursement/add';
+  static const String absent = '/absent';
+  static const String absentAdd = '/absent/add';
   static const String leave = '/leave';
   static const String leaveAdd = '/leave/add';
   static const String overtime = '/overtime';
@@ -124,6 +128,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.reimbursementAdd,
         builder: (_, _) => const ReimbursementAddPage(),
+      ),
+      GoRoute(path: RoutePaths.absent, builder: (_, _) => const AbsentPage()),
+      GoRoute(
+        path: RoutePaths.absentAdd,
+        builder: (_, _) => const AbsentAddPage(),
       ),
       GoRoute(path: RoutePaths.leave, builder: (_, _) => const LeavePage()),
       GoRoute(
