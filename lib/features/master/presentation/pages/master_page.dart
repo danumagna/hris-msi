@@ -22,6 +22,21 @@ class _MasterPageState extends ConsumerState<MasterPage> {
       subtitle: 'Manage approval workflows',
     ),
     _MasterMenuItem(
+      icon: Icons.dynamic_form_rounded,
+      title: 'Form',
+      subtitle: 'Manage form templates',
+    ),
+    _MasterMenuItem(
+      icon: Icons.person_rounded,
+      title: 'User',
+      subtitle: 'Manage user accounts',
+    ),
+    _MasterMenuItem(
+      icon: Icons.playlist_add_check_circle_rounded,
+      title: 'Action',
+      subtitle: 'Manage action settings',
+    ),
+    _MasterMenuItem(
       icon: Icons.business_rounded,
       title: 'Company',
       subtitle: 'Manage company data',
@@ -116,9 +131,12 @@ class _MasterPageState extends ConsumerState<MasterPage> {
 
   List<_MasterMenuItem> get _filteredMenus {
     final query = _query.trim().toLowerCase();
-    if (query.isEmpty) return _menus;
+    final sortedMenus = [..._menus]
+      ..sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
 
-    return _menus.where((menu) {
+    if (query.isEmpty) return sortedMenus;
+
+    return sortedMenus.where((menu) {
       return menu.title.toLowerCase().contains(query) ||
           menu.subtitle.toLowerCase().contains(query);
     }).toList();
