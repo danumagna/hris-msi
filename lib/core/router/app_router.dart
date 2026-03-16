@@ -13,12 +13,21 @@ import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/leave/presentation/pages/leave_add_page.dart';
 import '../../features/leave/presentation/pages/leave_page.dart';
 import '../../features/main/presentation/pages/main_shell_page.dart';
+import '../../features/master/presentation/models/master_action_data.dart';
 import '../../features/master/presentation/models/master_company_data.dart';
+import '../../features/master/presentation/models/master_employee_data.dart';
 import '../../features/master/presentation/models/master_plant_data.dart';
 import '../../features/master/presentation/models/master_position_data.dart';
+import '../../features/master/presentation/models/master_user_data.dart';
+import '../../features/master/presentation/pages/master_action_detail_page.dart';
+import '../../features/master/presentation/pages/master_action_form_page.dart';
+import '../../features/master/presentation/pages/master_action_page.dart';
 import '../../features/master/presentation/pages/master_company_detail_page.dart';
 import '../../features/master/presentation/pages/master_company_form_page.dart';
 import '../../features/master/presentation/pages/master_company_page.dart';
+import '../../features/master/presentation/pages/master_employee_detail_page.dart';
+import '../../features/master/presentation/pages/master_employee_form_page.dart';
+import '../../features/master/presentation/pages/master_employee_page.dart';
 import '../../features/master/presentation/pages/master_page.dart';
 import '../../features/master/presentation/pages/master_plant_detail_page.dart';
 import '../../features/master/presentation/pages/master_plant_form_page.dart';
@@ -26,6 +35,9 @@ import '../../features/master/presentation/pages/master_plant_page.dart';
 import '../../features/master/presentation/pages/master_position_detail_page.dart';
 import '../../features/master/presentation/pages/master_position_form_page.dart';
 import '../../features/master/presentation/pages/master_position_page.dart';
+import '../../features/master/presentation/pages/master_user_detail_page.dart';
+import '../../features/master/presentation/pages/master_user_form_page.dart';
+import '../../features/master/presentation/pages/master_user_page.dart';
 import '../../features/overtime/presentation/pages/overtime_add_page.dart';
 import '../../features/overtime/presentation/pages/overtime_page.dart';
 import '../../features/reimbursement/presentation/pages/reimbursement_add_page.dart';
@@ -67,6 +79,15 @@ class RoutePaths {
   static const String masterPosition = '/master/position';
   static const String masterPositionAdd = '/master/position/add';
   static const String masterPositionDetail = '/master/position/detail';
+  static const String masterUser = '/master/user';
+  static const String masterUserAdd = '/master/user/add';
+  static const String masterUserDetail = '/master/user/detail';
+  static const String masterAction = '/master/action';
+  static const String masterActionAdd = '/master/action/add';
+  static const String masterActionDetail = '/master/action/detail';
+  static const String masterEmployee = '/master/employee';
+  static const String masterEmployeeAdd = '/master/employee/add';
+  static const String masterEmployeeDetail = '/master/employee/detail';
 }
 
 /// A [Listenable] that notifies GoRouter when the auth state
@@ -238,6 +259,78 @@ final routerProvider = Provider<GoRouter>((ref) {
           }
 
           return MasterPositionDetailPage(position: extra);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterUser,
+        builder: (_, _) => const MasterUserPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterUserAdd,
+        builder: (_, state) {
+          final extra = state.extra;
+          return MasterUserFormPage(
+            initialData: extra is MasterUserData ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterUserDetail,
+        builder: (_, state) {
+          final extra = state.extra;
+          if (extra is! MasterUserData) {
+            return const MasterUserPage();
+          }
+
+          return MasterUserDetailPage(user: extra);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterAction,
+        builder: (_, _) => const MasterActionPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterActionAdd,
+        builder: (_, state) {
+          final extra = state.extra;
+          return MasterActionFormPage(
+            initialData: extra is MasterActionData ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterActionDetail,
+        builder: (_, state) {
+          final extra = state.extra;
+          if (extra is! MasterActionData) {
+            return const MasterActionPage();
+          }
+
+          return MasterActionDetailPage(action: extra);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterEmployee,
+        builder: (_, _) => const MasterEmployeePage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterEmployeeAdd,
+        builder: (_, state) {
+          final extra = state.extra;
+          return MasterEmployeeFormPage(
+            initialData: extra is MasterEmployeeData ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterEmployeeDetail,
+        builder: (_, state) {
+          final extra = state.extra;
+          if (extra is! MasterEmployeeData) {
+            return const MasterEmployeePage();
+          }
+
+          return MasterEmployeeDetailPage(employee: extra);
         },
       ),
 

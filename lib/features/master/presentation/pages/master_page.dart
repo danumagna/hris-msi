@@ -30,11 +30,13 @@ class _MasterPageState extends ConsumerState<MasterPage> {
       icon: Icons.person_rounded,
       title: 'User',
       subtitle: 'Manage user accounts',
+      route: RoutePaths.masterUser,
     ),
     _MasterMenuItem(
       icon: Icons.playlist_add_check_circle_rounded,
       title: 'Action',
       subtitle: 'Manage action settings',
+      route: RoutePaths.masterAction,
     ),
     _MasterMenuItem(
       icon: Icons.business_rounded,
@@ -56,6 +58,7 @@ class _MasterPageState extends ConsumerState<MasterPage> {
       icon: Icons.people_alt_rounded,
       title: 'Employee',
       subtitle: 'Manage employee data',
+      route: RoutePaths.masterEmployee,
     ),
     _MasterMenuItem(
       icon: Icons.functions_rounded,
