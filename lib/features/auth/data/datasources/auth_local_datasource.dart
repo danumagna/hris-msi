@@ -21,10 +21,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> saveToken(String token) async {
-    await _storage.write(
-      key: AppConstants.accessTokenKey,
-      value: token,
-    );
+    await _storage.write(key: AppConstants.accessTokenKey, value: token);
   }
 
   @override
@@ -42,9 +39,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<UserModel?> getCachedUser() async {
-    final data = await _storage.read(
-      key: AppConstants.userDataKey,
-    );
+    final data = await _storage.read(key: AppConstants.userDataKey);
     if (data == null) return null;
     return UserModel.fromJsonString(data);
   }

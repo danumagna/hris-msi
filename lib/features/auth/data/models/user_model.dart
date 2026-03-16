@@ -48,9 +48,7 @@ class UserModel {
   String toJsonString() => jsonEncode(toJson());
 
   factory UserModel.fromJsonString(String source) {
-    return UserModel.fromJson(
-      jsonDecode(source) as Map<String, dynamic>,
-    );
+    return UserModel.fromJson(jsonDecode(source) as Map<String, dynamic>);
   }
 
   User toEntity() {

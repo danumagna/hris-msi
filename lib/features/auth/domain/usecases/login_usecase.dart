@@ -14,9 +14,6 @@ class LoginUseCase {
     required String username,
     required String password,
   }) {
-    return _repository.login(
-      username: username,
-      password: password,
-    );
+    return _repository.login(username: username, password: password);
   }
 }
