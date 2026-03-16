@@ -25,6 +25,7 @@ class _MasterPageState extends ConsumerState<MasterPage> {
       icon: Icons.dynamic_form_rounded,
       title: 'Form',
       subtitle: 'Manage form templates',
+      route: RoutePaths.masterForm,
     ),
     _MasterMenuItem(
       icon: Icons.person_rounded,
