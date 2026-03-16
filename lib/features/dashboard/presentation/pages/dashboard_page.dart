@@ -14,11 +14,16 @@ import '../providers/attendance_provider.dart';
 /// Dashboard — first tab and primary landing page after login.
 ///
 /// Shows a greeting, quick-info cards, and common shortcuts.
-class DashboardPage extends ConsumerWidget {
+class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends ConsumerState<DashboardPage> {
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final user = switch (authState) {
       AuthAuthenticated(:final user) => user,

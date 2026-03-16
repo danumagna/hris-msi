@@ -13,7 +13,18 @@ class LoginUseCase {
   Future<Either<Failure, User>> call({
     required String username,
     required String password,
+    required int positionId,
+    required String positionName,
+    int? otp,
+    bool remember = true,
   }) {
-    return _repository.login(username: username, password: password);
+    return _repository.login(
+      username: username,
+      password: password,
+      positionId: positionId,
+      positionName: positionName,
+      otp: otp,
+      remember: remember,
+    );
   }
 }

@@ -10,8 +10,7 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // ── API ───────────────────────────────────────────────
-  // TODO: Ganti dengan URL API backend kamu
-  static const String baseUrl = 'https://api.example.com/v1';
+  static const String baseUrl = 'https://hris-api.magnaedu.id';
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);
 
@@ -19,6 +18,8 @@ class AppConstants {
   static const String accessTokenKey = 'access_token';
   static const String refreshTokenKey = 'refresh_token';
   static const String userDataKey = 'user_data';
+  static const String hrisSecCookieKey = 'hris_sec_cookie';
+  static const String loginStatusKey = 'is_logged_in';
   static const String isFirstLaunchKey = 'is_first_launch';
 
   // ── UI ────────────────────────────────────────────────

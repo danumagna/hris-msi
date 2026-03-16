@@ -22,7 +22,7 @@ class _WorkLocation {
   const _WorkLocation({
     required this.name,
     required this.coordinates,
-    this.isWfh = false,
+    required this.isWfh,
   });
 
   @override
@@ -48,14 +48,17 @@ class _CheckInPageState extends ConsumerState<CheckInPage> {
     const _WorkLocation(
       name: 'PT Magna Solusi Indonesia',
       coordinates: LatLng(-6.224137078680758, 106.84200412694256),
+      isWfh: false,
     ),
     const _WorkLocation(
       name: 'PT Kino Indonesia',
       coordinates: LatLng(-6.228541682594998, 106.65827765749832),
+      isWfh: false,
     ),
     const _WorkLocation(
       name: 'Saint John Bungur',
       coordinates: LatLng(-6.167152555345517, 106.84188002492792),
+      isWfh: false,
     ),
   ];
 

@@ -24,13 +24,24 @@ class UserModel {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    String readString(List<String> keys, {String fallback = ''}) {
+      for (final key in keys) {
+        final value = json[key];
+        if (value == null) continue;
+        final parsed = value.toString();
+        if (parsed.isNotEmpty) return parsed;
+      }
+      return fallback;
+    }
+
     return UserModel(
-      id: json['id'] as String,
-      employeeId: json['employee_id'] as String,
-      fullName: json['full_name'] as String,
-      email: json['email'] as String,
-      avatarUrl: json['avatar_url'] as String?,
-      role: json['role'] as String,
+      id: readString(['id', 'user_id'], fallback: '0'),
+      employeeId: readString(['employee_id', 'employeeId', 'username']),
+      fullName: readString(['full_name', 'fullName', 'name', 'username']),
+      email: readString(['email'], fallback: 'unknown@msi.com'),
+      avatarUrl:
+          json['avatar_url']?.toString() ?? json['avatarUrl']?.toString(),
+      role: readString(['role', 'positionName'], fallback: 'user'),
     );
   }
 

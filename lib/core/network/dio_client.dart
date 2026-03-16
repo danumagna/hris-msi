@@ -1,7 +1,10 @@
+import 'dart:io';
+
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../constants/app_constants.dart';
 
@@ -9,9 +12,25 @@ import '../constants/app_constants.dart';
 ///
 /// Includes:
 /// - Base URL, timeouts from [AppConstants]
-/// - Auth token interceptor (reads from secure storage)
+/// - Cookie manager interceptor (handles Set-Cookie/Cookie automatically)
 /// - Logging interceptor (debug-only)
+final cookieJarProvider = Provider<PersistCookieJar>((ref) {
+  final cookieDirectory = Directory(
+    '${Directory.systemTemp.path}${Platform.pathSeparator}hris_msi_cookies',
+  );
+  if (!cookieDirectory.existsSync()) {
+    cookieDirectory.createSync(recursive: true);
+  }
+
+  return PersistCookieJar(
+    ignoreExpires: false,
+    storage: FileStorage(cookieDirectory.path),
+  );
+});
+
 final dioProvider = Provider<Dio>((ref) {
+  final cookieJar = ref.watch(cookieJarProvider);
+
   final dio = Dio(
     BaseOptions(
       baseUrl: AppConstants.baseUrl,
@@ -24,22 +43,8 @@ final dioProvider = Provider<Dio>((ref) {
     ),
   );
 
-  // ── Auth Interceptor ──────────────────────────────
-  dio.interceptors.add(
-    InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        const storage = FlutterSecureStorage();
-        final token = await storage.read(key: AppConstants.accessTokenKey);
-        if (token != null && token.isNotEmpty) {
-          options.headers['Authorization'] = 'Bearer $token';
-        }
-        handler.next(options);
-      },
-      onError: (error, handler) {
-        handler.next(error);
-      },
-    ),
-  );
+  // ── Cookie Manager ────────────────────────────────
+  dio.interceptors.add(CookieManager(cookieJar));
 
   // ── Logging (debug only) ──────────────────────────
   if (kDebugMode) {

@@ -5,6 +5,7 @@ import '../../../../core/network/dio_client.dart';
 import '../../data/datasources/auth_local_datasource.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
+import '../../domain/entities/login_position.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/login_usecase.dart';
@@ -95,15 +96,55 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> login({
     required String username,
     required String password,
+    required int positionId,
+    required String positionName,
+    int? otp,
+    bool remember = true,
   }) async {
     state = const AuthLoading();
     final result = await ref
         .read(loginUseCaseProvider)
-        .call(username: username, password: password);
+        .call(
+          username: username,
+          password: password,
+          positionId: positionId,
+          positionName: positionName,
+          otp: otp,
+          remember: remember,
+        );
     result.fold(
       (failure) => state = AuthError(failure.message),
       (user) => state = AuthAuthenticated(user),
     );
+  }
+
+  Future<List<LoginPosition>> checkLoginPositions({
+    required String username,
+    required String password,
+  }) async {
+    state = const AuthLoading();
+    final result = await ref
+        .read(authRepositoryProvider)
+        .checkLoginPositions(username: username, password: password);
+
+    return result.fold(
+      (failure) {
+        state = AuthError(failure.message);
+        return <LoginPosition>[];
+      },
+      (positions) {
+        state = const AuthInitial();
+        return positions;
+      },
+    );
+  }
+
+  Future<bool> validatePermission({required String routePath}) async {
+    final result = await ref
+        .read(authRepositoryProvider)
+        .validatePermission(routePath: routePath);
+
+    return result.fold((_) => false, (allowed) => allowed);
   }
 
   Future<void> loginAsGuest() async {
@@ -122,11 +163,9 @@ class AuthNotifier extends Notifier<AuthState> {
 
   Future<void> logout() async {
     state = const AuthLoading();
-    final result = await ref.read(logoutUseCaseProvider).call();
-    result.fold(
-      (failure) => state = AuthError(failure.message),
-      (_) => state = const AuthUnauthenticated(),
-    );
+    await ref.read(logoutUseCaseProvider).call();
+    await ref.read(cookieJarProvider).deleteAll();
+    state = const AuthUnauthenticated();
   }
 }
 

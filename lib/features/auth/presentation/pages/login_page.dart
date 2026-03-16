@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../domain/entities/login_position.dart';
 import '../providers/auth_provider.dart';
 
 /// Full-screen login page with a gradient header, modern
@@ -20,8 +21,8 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _usernameCtrl = TextEditingController();
-  final _passwordCtrl = TextEditingController();
+  final _usernameCtrl = TextEditingController(text: 'superadmin');
+  final _passwordCtrl = TextEditingController(text: 'msi010803!');
   bool _obscurePassword = true;
   late AnimationController _animCtrl;
   late Animation<double> _fadeIn;
@@ -47,12 +48,93 @@ class _LoginPageState extends ConsumerState<LoginPage>
 
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
-    await ref
-        .read(authProvider.notifier)
-        .login(
-          username: _usernameCtrl.text.trim(),
-          password: _passwordCtrl.text,
+
+    final username = _usernameCtrl.text.trim();
+    final password = _passwordCtrl.text;
+    final authNotifier = ref.read(authProvider.notifier);
+
+    final positions = await authNotifier.checkLoginPositions(
+      username: username,
+      password: password,
+    );
+
+    if (!mounted) return;
+    final checkPositionState = ref.read(authProvider);
+    if (checkPositionState is AuthError) {
+      // Error message is already handled by ref.listen(authProvider).
+      return;
+    }
+
+    if (positions.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Posisi login tidak ditemukan untuk akun ini.'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    LoginPosition? selectedPosition;
+    if (positions.length == 1) {
+      selectedPosition = positions.first;
+    } else {
+      selectedPosition = await _showPositionPicker(positions);
+    }
+
+    if (!mounted || selectedPosition == null) return;
+
+    await authNotifier.login(
+      username: username,
+      password: password,
+      positionId: selectedPosition.id,
+      positionName: selectedPosition.name,
+      remember: true,
+    );
+  }
+
+  Future<LoginPosition?> _showPositionPicker(
+    List<LoginPosition> positions,
+  ) async {
+    return showModalBottomSheet<LoginPosition>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.divider,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text('Pilih Posisi Login', style: AppTextStyles.titleMedium),
+                const SizedBox(height: 8),
+                ...positions.map(
+                  (position) => ListTile(
+                    leading: const Icon(Icons.badge_rounded),
+                    title: Text(position.name),
+                    subtitle: Text('Position ID: ${position.id}'),
+                    onTap: () => Navigator.pop(sheetContext, position),
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
+      },
+    );
   }
 
   @override

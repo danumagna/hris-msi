@@ -8,6 +8,11 @@ import '../models/user_model.dart';
 abstract class AuthLocalDataSource {
   Future<void> saveToken(String token);
   Future<String?> getToken();
+  Future<void> saveSessionCookie(String cookie);
+  Future<String?> getSessionCookie();
+  Future<bool> hasSessionCookie();
+  Future<void> saveLoginStatus(bool isLoggedIn);
+  Future<bool> getLoginStatus();
   Future<void> saveUser(UserModel user);
   Future<UserModel?> getCachedUser();
   Future<void> clearAuthData();
@@ -30,6 +35,36 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   }
 
   @override
+  Future<void> saveSessionCookie(String cookie) async {
+    await _storage.write(key: AppConstants.hrisSecCookieKey, value: cookie);
+  }
+
+  @override
+  Future<String?> getSessionCookie() async {
+    return _storage.read(key: AppConstants.hrisSecCookieKey);
+  }
+
+  @override
+  Future<bool> hasSessionCookie() async {
+    final cookie = await getSessionCookie();
+    return cookie != null && cookie.isNotEmpty;
+  }
+
+  @override
+  Future<void> saveLoginStatus(bool isLoggedIn) async {
+    await _storage.write(
+      key: AppConstants.loginStatusKey,
+      value: isLoggedIn ? 'true' : 'false',
+    );
+  }
+
+  @override
+  Future<bool> getLoginStatus() async {
+    final value = await _storage.read(key: AppConstants.loginStatusKey);
+    return value == 'true';
+  }
+
+  @override
   Future<void> saveUser(UserModel user) async {
     await _storage.write(
       key: AppConstants.userDataKey,
@@ -49,11 +84,12 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     await _storage.delete(key: AppConstants.accessTokenKey);
     await _storage.delete(key: AppConstants.refreshTokenKey);
     await _storage.delete(key: AppConstants.userDataKey);
+    await _storage.delete(key: AppConstants.hrisSecCookieKey);
+    await _storage.delete(key: AppConstants.loginStatusKey);
   }
 
   @override
   Future<bool> hasToken() async {
-    final token = await getToken();
-    return token != null && token.isNotEmpty;
+    return hasSessionCookie();
   }
 }

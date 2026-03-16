@@ -122,7 +122,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: refreshNotifier,
 
     // ── Global redirect ───────────────────────────────
-    redirect: (context, state) {
+    redirect: (context, state) async {
       // Read (not watch) the CURRENT auth state each time
       // redirect is evaluated.
       final authState = ref.read(authProvider);
@@ -147,6 +147,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (isSplash || isLogin || isForgotPassword) {
           return RoutePaths.dashboard;
         }
+
+        final allowed = await ref
+            .read(authProvider.notifier)
+            .validatePermission(routePath: currentPath);
+        if (!allowed) {
+          await ref.read(authProvider.notifier).logout();
+          return RoutePaths.login;
+        }
+
         return null;
       }
 
