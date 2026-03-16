@@ -15,6 +15,7 @@ import '../../features/leave/presentation/pages/leave_page.dart';
 import '../../features/main/presentation/pages/main_shell_page.dart';
 import '../../features/master/presentation/models/master_company_data.dart';
 import '../../features/master/presentation/models/master_plant_data.dart';
+import '../../features/master/presentation/models/master_position_data.dart';
 import '../../features/master/presentation/pages/master_company_detail_page.dart';
 import '../../features/master/presentation/pages/master_company_form_page.dart';
 import '../../features/master/presentation/pages/master_company_page.dart';
@@ -22,6 +23,9 @@ import '../../features/master/presentation/pages/master_page.dart';
 import '../../features/master/presentation/pages/master_plant_detail_page.dart';
 import '../../features/master/presentation/pages/master_plant_form_page.dart';
 import '../../features/master/presentation/pages/master_plant_page.dart';
+import '../../features/master/presentation/pages/master_position_detail_page.dart';
+import '../../features/master/presentation/pages/master_position_form_page.dart';
+import '../../features/master/presentation/pages/master_position_page.dart';
 import '../../features/overtime/presentation/pages/overtime_add_page.dart';
 import '../../features/overtime/presentation/pages/overtime_page.dart';
 import '../../features/reimbursement/presentation/pages/reimbursement_add_page.dart';
@@ -60,6 +64,9 @@ class RoutePaths {
   static const String masterPlant = '/master/plant';
   static const String masterPlantAdd = '/master/plant/add';
   static const String masterPlantDetail = '/master/plant/detail';
+  static const String masterPosition = '/master/position';
+  static const String masterPositionAdd = '/master/position/add';
+  static const String masterPositionDetail = '/master/position/detail';
 }
 
 /// A [Listenable] that notifies GoRouter when the auth state
@@ -207,6 +214,30 @@ final routerProvider = Provider<GoRouter>((ref) {
           }
 
           return MasterPlantDetailPage(plant: extra);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterPosition,
+        builder: (_, _) => const MasterPositionPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterPositionAdd,
+        builder: (_, state) {
+          final extra = state.extra;
+          return MasterPositionFormPage(
+            initialData: extra is MasterPositionData ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterPositionDetail,
+        builder: (_, state) {
+          final extra = state.extra;
+          if (extra is! MasterPositionData) {
+            return const MasterPositionPage();
+          }
+
+          return MasterPositionDetailPage(position: extra);
         },
       ),
 

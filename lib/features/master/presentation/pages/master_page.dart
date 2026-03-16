@@ -77,6 +77,7 @@ class _MasterPageState extends ConsumerState<MasterPage> {
       icon: Icons.badge_rounded,
       title: 'Position',
       subtitle: 'Manage job positions',
+      route: RoutePaths.masterPosition,
     ),
     _MasterMenuItem(
       icon: Icons.leaderboard_rounded,
