@@ -14,6 +14,7 @@ import '../../features/leave/presentation/pages/leave_add_page.dart';
 import '../../features/leave/presentation/pages/leave_page.dart';
 import '../../features/main/presentation/pages/main_shell_page.dart';
 import '../../features/master/presentation/models/master_action_data.dart';
+import '../../features/master/presentation/models/master_approval_data.dart';
 import '../../features/master/presentation/models/master_company_data.dart';
 import '../../features/master/presentation/models/master_cost_center_data.dart';
 import '../../features/master/presentation/models/master_employee_data.dart';
@@ -25,6 +26,10 @@ import '../../features/master/presentation/models/master_user_data.dart';
 import '../../features/master/presentation/pages/master_action_detail_page.dart';
 import '../../features/master/presentation/pages/master_action_form_page.dart';
 import '../../features/master/presentation/pages/master_action_page.dart';
+import '../../features/master/presentation/pages/master_approval_detail_page.dart';
+import '../../features/master/presentation/pages/master_approval_form_page.dart';
+import '../../features/master/presentation/pages/master_approval_page.dart';
+import '../../features/master/presentation/pages/master_approval_view_page.dart';
 import '../../features/master/presentation/pages/master_company_detail_page.dart';
 import '../../features/master/presentation/pages/master_company_form_page.dart';
 import '../../features/master/presentation/pages/master_company_page.dart';
@@ -100,6 +105,10 @@ class RoutePaths {
   static const String masterAction = '/master/action';
   static const String masterActionAdd = '/master/action/add';
   static const String masterActionDetail = '/master/action/detail';
+  static const String masterApproval = '/master/approval';
+  static const String masterApprovalAdd = '/master/approval/add';
+  static const String masterApprovalDetail = '/master/approval/detail';
+  static const String masterApprovalView = '/master/approval/view';
   static const String masterEmployee = '/master/employee';
   static const String masterEmployeeAdd = '/master/employee/add';
   static const String masterEmployeeDetail = '/master/employee/detail';
@@ -342,6 +351,34 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.masterAction,
         builder: (_, _) => const MasterActionPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterApproval,
+        builder: (_, _) => const MasterApprovalPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterApprovalAdd,
+        builder: (_, state) {
+          final extra = state.extra;
+          return MasterApprovalFormPage(
+            initialData: extra is MasterApprovalData ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterApprovalDetail,
+        builder: (_, state) {
+          final extra = state.extra;
+          if (extra is! MasterApprovalData) {
+            return const MasterApprovalPage();
+          }
+
+          return MasterApprovalDetailPage(approvalData: extra);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterApprovalView,
+        builder: (_, _) => const MasterApprovalViewPage(),
       ),
       GoRoute(
         path: RoutePaths.masterActionAdd,

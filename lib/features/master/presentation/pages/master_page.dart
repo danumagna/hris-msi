@@ -20,6 +20,7 @@ class _MasterPageState extends ConsumerState<MasterPage> {
       icon: Icons.approval_rounded,
       title: 'Approval',
       subtitle: 'Manage approval workflows',
+      route: RoutePaths.masterApproval,
     ),
     _MasterMenuItem(
       icon: Icons.dynamic_form_rounded,
