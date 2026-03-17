@@ -24,24 +24,63 @@ class UserModel {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    String normalizeKey(String key) {
+      return key.replaceAll('_', '').replaceAll('-', '').toLowerCase();
+    }
+
+    dynamic readValue(String key) {
+      if (json.containsKey(key)) return json[key];
+
+      final target = normalizeKey(key);
+      for (final entry in json.entries) {
+        if (normalizeKey(entry.key) == target) {
+          return entry.value;
+        }
+      }
+
+      return null;
+    }
+
     String readString(List<String> keys, {String fallback = ''}) {
       for (final key in keys) {
-        final value = json[key];
+        final value = readValue(key);
         if (value == null) continue;
-        final parsed = value.toString();
+        final parsed = value.toString().trim();
         if (parsed.isNotEmpty) return parsed;
       }
       return fallback;
     }
 
+    final id = readString(['id', 'user_id']);
+    final employeeId = readString([
+      'employee_id',
+      'employeeId',
+      'nip',
+      'nik',
+      'userName',
+      'user_name',
+      'username',
+    ]);
+    final fullName = readString([
+      'full_name',
+      'fullName',
+      'name',
+      'employee_name',
+      'nama',
+      'userName',
+      'username',
+    ]);
+    final email = readString(['email']);
+    final role = readString(['role', 'positionName', 'position_name']);
+
     return UserModel(
-      id: readString(['id', 'user_id'], fallback: '0'),
-      employeeId: readString(['employee_id', 'employeeId', 'username']),
-      fullName: readString(['full_name', 'fullName', 'name', 'username']),
-      email: readString(['email'], fallback: 'unknown@msi.com'),
+      id: id,
+      employeeId: employeeId,
+      fullName: fullName,
+      email: email,
       avatarUrl:
           json['avatar_url']?.toString() ?? json['avatarUrl']?.toString(),
-      role: readString(['role', 'positionName'], fallback: 'user'),
+      role: role,
     );
   }
 

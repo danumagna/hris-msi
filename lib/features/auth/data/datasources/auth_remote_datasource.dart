@@ -84,8 +84,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final response = await _dio.post('/auth/login', data: payload);
 
       final data = _asMap(response.data);
-      final userJson = _extractUserMap(data) ?? _fallbackUserMap(username);
-      return UserModel.fromJson(userJson);
+      final userJson = _extractUserMap(data);
+      if (userJson != null) {
+        return UserModel.fromJson(userJson);
+      }
+
+      // Some backends only return auth status/cookies on login,
+      // then expose user details via check-login.
+      final currentUser = await getCurrentUser();
+      if (currentUser != null) {
+        return currentUser;
+      }
+
+      throw const ServerException('Data user tidak ditemukan setelah login');
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
@@ -206,7 +217,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   Map<String, dynamic>? _extractUserMap(Map<String, dynamic> root) {
-    final direct = root['user'];
+    final direct =
+        root['user'] ?? root['User'] ?? root['account'] ?? root['profile'];
     if (direct is Map<String, dynamic>) return direct;
     if (direct is Map) {
       return direct.map((key, value) => MapEntry(key.toString(), value));
@@ -214,8 +226,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     final data = root['data'];
     if (data is Map<String, dynamic>) {
-      final nestedUser = data['user'];
+      final nestedUser =
+          data['user'] ?? data['User'] ?? data['account'] ?? data['profile'];
       if (nestedUser is Map<String, dynamic>) return nestedUser;
+      if (nestedUser is Map) {
+        return nestedUser.map((key, value) => MapEntry(key.toString(), value));
+      }
       if (_looksLikeUser(data)) return data;
     }
     if (data is Map) {
@@ -225,10 +241,63 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (_looksLikeUser(normalized)) return normalized;
     }
 
+    final result = root['result'];
+    if (result is Map<String, dynamic>) {
+      final nestedUser =
+          result['user'] ?? result['account'] ?? result['profile'];
+      if (nestedUser is Map<String, dynamic>) return nestedUser;
+      if (nestedUser is Map) {
+        return nestedUser.map((key, value) => MapEntry(key.toString(), value));
+      }
+      if (_looksLikeUser(result)) return result;
+    }
+    if (result is Map) {
+      final normalized = result.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+      final nestedUser =
+          normalized['user'] ?? normalized['account'] ?? normalized['profile'];
+      if (nestedUser is Map<String, dynamic>) return nestedUser;
+      if (nestedUser is Map) {
+        return nestedUser.map((key, value) => MapEntry(key.toString(), value));
+      }
+      if (_looksLikeUser(normalized)) return normalized;
+    }
+
+    final payload = root['payload'];
+    if (payload is Map<String, dynamic>) {
+      final nestedUser =
+          payload['user'] ?? payload['account'] ?? payload['profile'];
+      if (nestedUser is Map<String, dynamic>) return nestedUser;
+      if (nestedUser is Map) {
+        return nestedUser.map((key, value) => MapEntry(key.toString(), value));
+      }
+      if (_looksLikeUser(payload)) return payload;
+    }
+    if (payload is Map) {
+      final normalized = payload.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+      final nestedUser =
+          normalized['user'] ?? normalized['account'] ?? normalized['profile'];
+      if (nestedUser is Map<String, dynamic>) return nestedUser;
+      if (nestedUser is Map) {
+        return nestedUser.map((key, value) => MapEntry(key.toString(), value));
+      }
+      if (_looksLikeUser(normalized)) return normalized;
+    }
+
     final response = root['response'];
     if (response is Map<String, dynamic>) {
-      final nestedUser = response['user'];
+      final nestedUser =
+          response['user'] ??
+          response['User'] ??
+          response['account'] ??
+          response['profile'];
       if (nestedUser is Map<String, dynamic>) return nestedUser;
+      if (nestedUser is Map) {
+        return nestedUser.map((key, value) => MapEntry(key.toString(), value));
+      }
       if (_looksLikeUser(response)) return response;
     }
     if (response is Map) {
@@ -243,9 +312,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   bool _looksLikeUser(Map<String, dynamic> map) {
-    return map.containsKey('email') ||
+    return map.containsKey('id') ||
+        map.containsKey('user_id') ||
+        map.containsKey('employee_id') ||
+        map.containsKey('employeeId') ||
+        map.containsKey('userName') ||
+        map.containsKey('user_name') ||
         map.containsKey('full_name') ||
         map.containsKey('fullName') ||
+        map.containsKey('name') ||
+        map.containsKey('email') ||
+        map.containsKey('positionName') ||
         map.containsKey('username');
   }
 
@@ -261,17 +338,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (value is num) return value != 0;
     }
     return null;
-  }
-
-  Map<String, dynamic> _fallbackUserMap(String username) {
-    return {
-      'id': username,
-      'employee_id': username,
-      'full_name': username,
-      'email': '$username@msi.com',
-      'avatar_url': null,
-      'role': 'user',
-    };
   }
 
   /// Converts [DioException] to typed app exceptions.

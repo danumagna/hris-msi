@@ -73,7 +73,7 @@ class SystemPage extends ConsumerWidget {
             onTap: () {},
           ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 15),
 
           // ── Logout Button ──────────────────────
           SizedBox(
@@ -163,11 +163,12 @@ class _ProfileCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  user?.fullName ?? 'User',
+                  _displayUsername,
                   style: AppTextStyles.titleMedium.copyWith(
                     color: AppColors.white,
                   ),
                 ),
+
                 const SizedBox(height: 2),
                 Text(
                   user?.email ?? '',
@@ -199,6 +200,13 @@ class _ProfileCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String get _displayUsername {
+    final username = user?.employeeId.trim() ?? '';
+    if (username.isNotEmpty) return username;
+
+    return '-';
   }
 }
 

@@ -7,6 +7,7 @@ import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
+import '../models/user_model.dart';
 
 /// Concrete implementation of [AuthRepository].
 ///
@@ -93,14 +94,17 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, User>> getCurrentUser() async {
     try {
+      final cached = await _local.getCachedUser();
       final userModel = await _remote.getCurrentUser();
       if (userModel != null) {
-        await _local.saveUser(userModel);
-        return Right(userModel.toEntity());
+        final hydrated = _hydrateCurrentUser(userModel, cached);
+        await _local.saveUser(hydrated);
+        return Right(hydrated.toEntity());
       }
 
-      final cached = await _local.getCachedUser();
       if (cached != null) return Right(cached.toEntity());
+
+      await _local.clearAuthData();
 
       return const Left(
         AuthFailure('Session tidak valid. Silakan login lagi.'),
@@ -134,5 +138,41 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<bool> isLoggedIn() async {
     return _local.getLoginStatus();
+  }
+
+  UserModel _hydrateCurrentUser(UserModel remote, UserModel? cached) {
+    if (cached == null) return remote;
+
+    String sanitizeName(String value) {
+      final trimmed = value.trim();
+      if (trimmed.toLowerCase() == 'user') return '';
+      return trimmed;
+    }
+
+    String sanitizeEmail(String value) {
+      final trimmed = value.trim();
+      if (trimmed.toLowerCase() == 'unknown@msi.com') return '';
+      return trimmed;
+    }
+
+    String choose(String current, String fallback) {
+      final currentTrimmed = current.trim();
+      if (currentTrimmed.isNotEmpty) return currentTrimmed;
+      return fallback.trim();
+    }
+
+    final remoteName = sanitizeName(remote.fullName);
+    final cachedName = sanitizeName(cached.fullName);
+    final remoteEmail = sanitizeEmail(remote.email);
+    final cachedEmail = sanitizeEmail(cached.email);
+
+    return UserModel(
+      id: choose(remote.id, cached.id),
+      employeeId: choose(remote.employeeId, cached.employeeId),
+      fullName: choose(remoteName, cachedName),
+      email: choose(remoteEmail, cachedEmail),
+      avatarUrl: remote.avatarUrl ?? cached.avatarUrl,
+      role: choose(remote.role, cached.role),
+    );
   }
 }

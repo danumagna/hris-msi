@@ -125,14 +125,15 @@ class _Header extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  user?.fullName ?? 'User',
+                  _displayName,
                   style: AppTextStyles.headlineSmall.copyWith(
                     color: AppColors.white,
                   ),
                 ),
                 const SizedBox(height: 4),
+
                 Text(
-                  user?.role.toUpperCase() ?? '',
+                  _displayRole,
                   style: AppTextStyles.labelMedium.copyWith(
                     color: AppColors.white.withValues(alpha: 0.7),
                     letterSpacing: 1,
@@ -144,18 +145,49 @@ class _Header extends StatelessWidget {
           CircleAvatar(
             radius: 28,
             backgroundColor: AppColors.white.withValues(alpha: 0.2),
-            child: Text(
-              (user?.fullName ?? 'U')
-                  .split(' ')
-                  .take(2)
-                  .map((e) => e.isNotEmpty ? e[0] : '')
-                  .join(),
-              style: AppTextStyles.titleLarge.copyWith(color: AppColors.white),
-            ),
+            child: _initials.isEmpty
+                ? const Icon(
+                    Icons.person_outline_rounded,
+                    color: AppColors.white,
+                  )
+                : Text(
+                    _initials,
+                    style: AppTextStyles.titleLarge.copyWith(
+                      color: AppColors.white,
+                    ),
+                  ),
           ),
         ],
       ),
     );
+  }
+
+  String get _displayName {
+    final name = user?.fullName.trim() ?? '';
+    if (name.isNotEmpty) return name;
+
+    final employeeId = user?.employeeId.trim() ?? '';
+    if (employeeId.isNotEmpty) return employeeId;
+
+    final email = user?.email.trim() ?? '';
+    if (email.isNotEmpty) return email;
+
+    return '-';
+  }
+
+  String get _displayRole {
+    final role = user?.role.trim() ?? '';
+    return role.isNotEmpty ? role.toUpperCase() : '-';
+  }
+
+  String get _initials {
+    final source = _displayName.trim();
+    if (source.isEmpty || source == '-') return '';
+
+    final parts = source.split(' ').where((part) => part.isNotEmpty).toList();
+    if (parts.isEmpty) return '';
+
+    return parts.take(2).map((part) => part[0].toUpperCase()).join();
   }
 }
 

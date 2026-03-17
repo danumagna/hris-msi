@@ -21,6 +21,8 @@ class AppConstants {
   static const String hrisSecCookieKey = 'hris_sec_cookie';
   static const String loginStatusKey = 'is_logged_in';
   static const String isFirstLaunchKey = 'is_first_launch';
+  static const String rememberMeKey = 'remember_me';
+  static const String rememberedUsernameKey = 'remembered_username';
 
   // ── UI ────────────────────────────────────────────────
   static const double defaultPadding = 16.0;

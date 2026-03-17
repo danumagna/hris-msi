@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -21,8 +23,9 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _usernameCtrl = TextEditingController(text: 'superadmin');
-  final _passwordCtrl = TextEditingController(text: 'msi010803!');
+  final _usernameCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  bool _rememberMe = false;
   bool _obscurePassword = true;
   late AnimationController _animCtrl;
   late Animation<double> _fadeIn;
@@ -36,6 +39,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
     );
     _fadeIn = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _animCtrl.forward();
+    _loadRememberMePreference();
   }
 
   @override
@@ -90,8 +94,40 @@ class _LoginPageState extends ConsumerState<LoginPage>
       password: password,
       positionId: selectedPosition.id,
       positionName: selectedPosition.name,
-      remember: true,
+      remember: _rememberMe,
     );
+
+    if (!mounted) return;
+    final loginState = ref.read(authProvider);
+    if (loginState is AuthAuthenticated) {
+      await _saveRememberMePreference(username: username);
+    }
+  }
+
+  Future<void> _loadRememberMePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final remember = prefs.getBool(AppConstants.rememberMeKey) ?? false;
+    final rememberedUsername =
+        prefs.getString(AppConstants.rememberedUsernameKey) ?? '';
+
+    if (!mounted) return;
+    setState(() {
+      _rememberMe = remember;
+      if (remember && rememberedUsername.isNotEmpty) {
+        _usernameCtrl.text = rememberedUsername;
+      }
+    });
+  }
+
+  Future<void> _saveRememberMePreference({required String username}) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(AppConstants.rememberMeKey, _rememberMe);
+
+    if (_rememberMe) {
+      await prefs.setString(AppConstants.rememberedUsernameKey, username);
+    } else {
+      await prefs.remove(AppConstants.rememberedUsernameKey);
+    }
   }
 
   Future<LoginPosition?> _showPositionPicker(
@@ -184,7 +220,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                             const SizedBox(height: 20),
                             _buildPasswordField(),
                             const SizedBox(height: 12),
-                            _buildForgotPassword(),
+                            _buildRememberMeAndForgotPassword(),
                             const SizedBox(height: 32),
                             _buildLoginButton(isLoading),
                             const SizedBox(height: 16),
@@ -306,21 +342,44 @@ class _LoginPageState extends ConsumerState<LoginPage>
     );
   }
 
-  // ── Forgot Password ──────────────────────────────────
+  // ── Remember Me + Forgot Password ────────────────────
 
-  Widget _buildForgotPassword() {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton(
-        onPressed: () => context.push(RoutePaths.forgotPassword),
-        child: Text(
-          'Forgot Password?',
-          style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.accentBlue,
-            fontWeight: FontWeight.w500,
+  Widget _buildRememberMeAndForgotPassword() {
+    return Row(
+      children: [
+        Expanded(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () => setState(() => _rememberMe = !_rememberMe),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: _rememberMe,
+                  onChanged: (value) {
+                    setState(() => _rememberMe = value ?? false);
+                  },
+                ),
+                Text(
+                  'Remember me',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
+        TextButton(
+          onPressed: () => context.push(RoutePaths.forgotPassword),
+          child: Text(
+            'Forgot Password?',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.accentBlue,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
