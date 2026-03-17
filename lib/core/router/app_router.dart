@@ -15,6 +15,7 @@ import '../../features/leave/presentation/pages/leave_page.dart';
 import '../../features/main/presentation/pages/main_shell_page.dart';
 import '../../features/master/presentation/models/master_action_data.dart';
 import '../../features/master/presentation/models/master_company_data.dart';
+import '../../features/master/presentation/models/master_cost_center_data.dart';
 import '../../features/master/presentation/models/master_employee_data.dart';
 import '../../features/master/presentation/models/master_form_data.dart';
 import '../../features/master/presentation/models/master_plant_data.dart';
@@ -26,6 +27,9 @@ import '../../features/master/presentation/pages/master_action_page.dart';
 import '../../features/master/presentation/pages/master_company_detail_page.dart';
 import '../../features/master/presentation/pages/master_company_form_page.dart';
 import '../../features/master/presentation/pages/master_company_page.dart';
+import '../../features/master/presentation/pages/master_cost_center_detail_page.dart';
+import '../../features/master/presentation/pages/master_cost_center_form_page.dart';
+import '../../features/master/presentation/pages/master_cost_center_page.dart';
 import '../../features/master/presentation/pages/master_employee_detail_page.dart';
 import '../../features/master/presentation/pages/master_employee_form_page.dart';
 import '../../features/master/presentation/pages/master_employee_page.dart';
@@ -77,6 +81,9 @@ class RoutePaths {
   static const String masterCompany = '/master/company';
   static const String masterCompanyAdd = '/master/company/add';
   static const String masterCompanyDetail = '/master/company/detail';
+  static const String masterCostCenter = '/master/cost-center';
+  static const String masterCostCenterAdd = '/master/cost-center/add';
+  static const String masterCostCenterDetail = '/master/cost-center/detail';
   static const String masterPlant = '/master/plant';
   static const String masterPlantAdd = '/master/plant/add';
   static const String masterPlantDetail = '/master/plant/detail';
@@ -208,6 +215,30 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.masterCompany,
         builder: (_, _) => const MasterCompanyPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterCostCenter,
+        builder: (_, _) => const MasterCostCenterPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterCostCenterAdd,
+        builder: (_, state) {
+          final extra = state.extra;
+          return MasterCostCenterFormPage(
+            initialData: extra is MasterCostCenterData ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterCostCenterDetail,
+        builder: (_, state) {
+          final extra = state.extra;
+          if (extra is! MasterCostCenterData) {
+            return const MasterCostCenterPage();
+          }
+
+          return MasterCostCenterDetailPage(costCenterData: extra);
+        },
       ),
       GoRoute(
         path: RoutePaths.masterCompanyAdd,

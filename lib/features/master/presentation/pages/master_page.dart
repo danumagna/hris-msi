@@ -49,6 +49,7 @@ class _MasterPageState extends ConsumerState<MasterPage> {
       icon: Icons.account_balance_wallet_rounded,
       title: 'Cost Center',
       subtitle: 'Manage cost centers',
+      route: RoutePaths.masterCostCenter,
     ),
     _MasterMenuItem(
       icon: Icons.email_rounded,
