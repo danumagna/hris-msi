@@ -56,6 +56,7 @@ class _MasterPageState extends ConsumerState<MasterPage> {
       icon: Icons.email_rounded,
       title: 'Email',
       subtitle: 'Manage email configurations',
+      route: RoutePaths.masterEmail,
     ),
     _MasterMenuItem(
       icon: Icons.people_alt_rounded,

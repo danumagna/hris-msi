@@ -17,6 +17,7 @@ import '../../features/master/presentation/models/master_action_data.dart';
 import '../../features/master/presentation/models/master_approval_data.dart';
 import '../../features/master/presentation/models/master_company_data.dart';
 import '../../features/master/presentation/models/master_cost_center_data.dart';
+import '../../features/master/presentation/models/master_email_data.dart';
 import '../../features/master/presentation/models/master_employee_data.dart';
 import '../../features/master/presentation/models/master_form_data.dart';
 import '../../features/master/presentation/models/master_formula_data.dart';
@@ -36,6 +37,9 @@ import '../../features/master/presentation/pages/master_company_page.dart';
 import '../../features/master/presentation/pages/master_cost_center_detail_page.dart';
 import '../../features/master/presentation/pages/master_cost_center_form_page.dart';
 import '../../features/master/presentation/pages/master_cost_center_page.dart';
+import '../../features/master/presentation/pages/master_email_detail_page.dart';
+import '../../features/master/presentation/pages/master_email_form_page.dart';
+import '../../features/master/presentation/pages/master_email_page.dart';
 import '../../features/master/presentation/pages/master_employee_detail_page.dart';
 import '../../features/master/presentation/pages/master_employee_form_page.dart';
 import '../../features/master/presentation/pages/master_employee_page.dart';
@@ -93,6 +97,9 @@ class RoutePaths {
   static const String masterCostCenter = '/master/cost-center';
   static const String masterCostCenterAdd = '/master/cost-center/add';
   static const String masterCostCenterDetail = '/master/cost-center/detail';
+  static const String masterEmail = '/master/email';
+  static const String masterEmailAdd = '/master/email/add';
+  static const String masterEmailDetail = '/master/email/detail';
   static const String masterPlant = '/master/plant';
   static const String masterPlantAdd = '/master/plant/add';
   static const String masterPlantDetail = '/master/plant/detail';
@@ -254,6 +261,30 @@ final routerProvider = Provider<GoRouter>((ref) {
           }
 
           return MasterCostCenterDetailPage(costCenterData: extra);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterEmail,
+        builder: (_, _) => const MasterEmailPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterEmailAdd,
+        builder: (_, state) {
+          final extra = state.extra;
+          return MasterEmailFormPage(
+            initialData: extra is MasterEmailData ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterEmailDetail,
+        builder: (_, state) {
+          final extra = state.extra;
+          if (extra is! MasterEmailData) {
+            return const MasterEmailPage();
+          }
+
+          return MasterEmailDetailPage(emailData: extra);
         },
       ),
       GoRoute(
