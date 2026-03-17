@@ -18,6 +18,7 @@ import '../../features/master/presentation/models/master_company_data.dart';
 import '../../features/master/presentation/models/master_cost_center_data.dart';
 import '../../features/master/presentation/models/master_employee_data.dart';
 import '../../features/master/presentation/models/master_form_data.dart';
+import '../../features/master/presentation/models/master_formula_data.dart';
 import '../../features/master/presentation/models/master_plant_data.dart';
 import '../../features/master/presentation/models/master_position_data.dart';
 import '../../features/master/presentation/models/master_user_data.dart';
@@ -36,6 +37,9 @@ import '../../features/master/presentation/pages/master_employee_page.dart';
 import '../../features/master/presentation/pages/master_form_detail_page.dart';
 import '../../features/master/presentation/pages/master_form_form_page.dart';
 import '../../features/master/presentation/pages/master_form_page.dart';
+import '../../features/master/presentation/pages/master_formula_detail_page.dart';
+import '../../features/master/presentation/pages/master_formula_form_page.dart';
+import '../../features/master/presentation/pages/master_formula_page.dart';
 import '../../features/master/presentation/pages/master_page.dart';
 import '../../features/master/presentation/pages/master_plant_detail_page.dart';
 import '../../features/master/presentation/pages/master_plant_form_page.dart';
@@ -99,6 +103,9 @@ class RoutePaths {
   static const String masterEmployee = '/master/employee';
   static const String masterEmployeeAdd = '/master/employee/add';
   static const String masterEmployeeDetail = '/master/employee/detail';
+  static const String masterFormula = '/master/formula';
+  static const String masterFormulaAdd = '/master/formula/add';
+  static const String masterFormulaDetail = '/master/formula/detail';
   static const String masterForm = '/master/form';
   static const String masterFormAdd = '/master/form/add';
   static const String masterFormDetail = '/master/form/detail';
@@ -359,6 +366,30 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.masterEmployee,
         builder: (_, _) => const MasterEmployeePage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterFormula,
+        builder: (_, _) => const MasterFormulaPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterFormulaAdd,
+        builder: (_, state) {
+          final extra = state.extra;
+          return MasterFormulaFormPage(
+            initialData: extra is MasterFormulaData ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterFormulaDetail,
+        builder: (_, state) {
+          final extra = state.extra;
+          if (extra is! MasterFormulaData) {
+            return const MasterFormulaPage();
+          }
+
+          return MasterFormulaDetailPage(formulaData: extra);
+        },
       ),
       GoRoute(
         path: RoutePaths.masterEmployeeAdd,

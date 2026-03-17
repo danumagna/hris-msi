@@ -66,6 +66,7 @@ class _MasterPageState extends ConsumerState<MasterPage> {
       icon: Icons.functions_rounded,
       title: 'Formula',
       subtitle: 'Manage calculation formulas',
+      route: RoutePaths.masterFormula,
     ),
     _MasterMenuItem(
       icon: Icons.account_balance_rounded,
