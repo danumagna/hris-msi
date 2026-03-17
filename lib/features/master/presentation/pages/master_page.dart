@@ -74,6 +74,7 @@ class _MasterPageState extends ConsumerState<MasterPage> {
       icon: Icons.account_balance_rounded,
       title: 'GL Account',
       subtitle: 'Manage general ledger accounts',
+      route: RoutePaths.masterGlAccount,
     ),
     _MasterMenuItem(
       icon: Icons.group_rounded,

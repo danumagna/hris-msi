@@ -21,6 +21,7 @@ import '../../features/master/presentation/models/master_email_data.dart';
 import '../../features/master/presentation/models/master_employee_data.dart';
 import '../../features/master/presentation/models/master_form_data.dart';
 import '../../features/master/presentation/models/master_formula_data.dart';
+import '../../features/master/presentation/models/master_gl_account_data.dart';
 import '../../features/master/presentation/models/master_plant_data.dart';
 import '../../features/master/presentation/models/master_position_data.dart';
 import '../../features/master/presentation/models/master_user_data.dart';
@@ -49,6 +50,9 @@ import '../../features/master/presentation/pages/master_form_page.dart';
 import '../../features/master/presentation/pages/master_formula_detail_page.dart';
 import '../../features/master/presentation/pages/master_formula_form_page.dart';
 import '../../features/master/presentation/pages/master_formula_page.dart';
+import '../../features/master/presentation/pages/master_gl_account_detail_page.dart';
+import '../../features/master/presentation/pages/master_gl_account_form_page.dart';
+import '../../features/master/presentation/pages/master_gl_account_page.dart';
 import '../../features/master/presentation/pages/master_page.dart';
 import '../../features/master/presentation/pages/master_plant_detail_page.dart';
 import '../../features/master/presentation/pages/master_plant_form_page.dart';
@@ -122,6 +126,9 @@ class RoutePaths {
   static const String masterFormula = '/master/formula';
   static const String masterFormulaAdd = '/master/formula/add';
   static const String masterFormulaDetail = '/master/formula/detail';
+  static const String masterGlAccount = '/master/gl-account';
+  static const String masterGlAccountAdd = '/master/gl-account/add';
+  static const String masterGlAccountDetail = '/master/gl-account/detail';
   static const String masterForm = '/master/form';
   static const String masterFormAdd = '/master/form/add';
   static const String masterFormDetail = '/master/form/detail';
@@ -457,6 +464,30 @@ final routerProvider = Provider<GoRouter>((ref) {
           }
 
           return MasterFormulaDetailPage(formulaData: extra);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterGlAccount,
+        builder: (_, _) => const MasterGlAccountPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.masterGlAccountAdd,
+        builder: (_, state) {
+          final extra = state.extra;
+          return MasterGlAccountFormPage(
+            initialData: extra is MasterGlAccountData ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.masterGlAccountDetail,
+        builder: (_, state) {
+          final extra = state.extra;
+          if (extra is! MasterGlAccountData) {
+            return const MasterGlAccountPage();
+          }
+
+          return MasterGlAccountDetailPage(glAccountData: extra);
         },
       ),
       GoRoute(
